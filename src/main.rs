@@ -1,4 +1,4 @@
-use image::{DynamicImage, GenericImage};
+// use image::{DynamicImage, GenericImage};
 use pixels::{Error, Pixels, SurfaceTexture};
 use winit::dpi::LogicalSize;
 use winit::event::{Event, VirtualKeyCode};
@@ -7,6 +7,7 @@ use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 mod color;
 mod light;
+mod matrix;
 mod plane;
 mod point;
 mod rendering;
@@ -118,32 +119,32 @@ fn main() -> Result<(), Error> {
             }),
         ],
     };
-    let mut img = DynamicImage::new_rgb8(scene.width, scene.height);
-    for x in 0..scene.width {
-        for y in 0..scene.height {
-            let ray = Ray::create_prime(x, y, &scene);
-            let intersection = scene.trace(&ray);
-            match intersection {
-                Some(i) => {
-                    let color = get_color(&i, &ray, &scene);
-                    img.put_pixel(
-                        x,
-                        y,
-                        image::Rgba([
-                            (color.red * 255.0) as u8,
-                            (color.green * 255.0) as u8,
-                            (color.blue * 255.0) as u8,
-                            255,
-                        ]),
-                    );
-                }
-                None => {
-                    img.put_pixel(x, y, image::Rgba([0, 0, 0, 255]));
-                }
-            }
-        }
-    }
-    img.save("render.png").unwrap();
+    // let mut img = DynamicImage::new_rgb8(scene.width, scene.height);
+    // for x in 0..scene.width {
+    //     for y in 0..scene.height {
+    //         let ray = Ray::create_prime(x, y, &scene);
+    //         let intersection = scene.trace(&ray);
+    //         match intersection {
+    //             Some(i) => {
+    //                 let color = get_color(&i, &ray, &scene);
+    //                 img.put_pixel(
+    //                     x,
+    //                     y,
+    //                     image::Rgba([
+    //                         (color.red * 255.0) as u8,
+    //                         (color.green * 255.0) as u8,
+    //                         (color.blue * 255.0) as u8,
+    //                         255,
+    //                     ]),
+    //                 );
+    //             }
+    //             None => {
+    //                 img.put_pixel(x, y, image::Rgba([0, 0, 0, 255]));
+    //             }
+    //         }
+    //     }
+    // }
+    // img.save("render.png").unwrap();
 
     let mut input = WinitInputHelper::new();
     let event_loop = EventLoop::new();
