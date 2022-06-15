@@ -11,22 +11,22 @@ mod intersection;
 mod light;
 mod material;
 mod matrix;
-mod plane;
+mod objects;
 mod point;
 mod ray;
-mod sphere;
-pub mod vector3;
+mod vector3;
 
 use crate::color::*;
 use crate::light::*;
 use crate::material::*;
 use crate::matrix::*;
+use crate::objects::sphere::*;
+use crate::objects::*;
 use crate::point::*;
 use crate::ray::*;
-use crate::sphere::*;
 
-const WIDTH: u32 = 500;
-const HEIGHT: u32 = 500;
+const WIDTH: u32 = 1000;
+const HEIGHT: u32 = 1000;
 
 fn main() -> Result<(), Error> {
     let mut input = WinitInputHelper::new();
@@ -72,14 +72,14 @@ fn draw(frame: &mut [u8]) {
         y: 0.0,
         z: -5.0,
     };
-    let mut sphere = Sphere::new(Material {
+    let mut sphere = Object::Sphere(Sphere::new(Material {
         color: Color {
             red: 1.0,
             green: 0.9,
             blue: 1.0,
         },
         ..Material::default()
-    });
+    }));
     let light = Light::PointLight(PointLight {
         position: Point {
             x: -10.0,
@@ -115,9 +115,9 @@ fn draw(frame: &mut [u8]) {
             Some(x) => {
                 let hit = hit(&[x.0, x.1]).unwrap();
                 let point = ray.position(hit.distance);
-                let normal = hit.object.normal_at(point);
+                let normal = hit.object.normal_at(&point);
                 let eye = -ray.direction;
-                let color = lighting(&hit.object.material, &light, &point, &eye, &normal);
+                let color = lighting(&hit.object.material(), &light, &point, &eye, &normal);
                 pixel.copy_from_slice(&[
                     (color.red * 255.0) as u8,
                     (color.green * 255.0) as u8,

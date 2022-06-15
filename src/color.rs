@@ -52,12 +52,15 @@ impl Mul<f32> for Color {
 
 impl Mul<Color> for f32 {
     type Output = Color;
+
     fn mul(self, other: Color) -> Color {
         other * self
     }
 }
+
 impl Add<Color> for Color {
     type Output = Color;
+
     fn add(self, other: Color) -> Color {
         Color {
             red: self.red + other.red,

@@ -1,7 +1,7 @@
 use crate::intersection::*;
 use crate::matrix::*;
+use crate::objects::*;
 use crate::point::*;
-use crate::sphere::*;
 use crate::vector3::*;
 
 pub struct Ray {
@@ -26,9 +26,9 @@ impl Ray {
 
 pub fn intersect<'a>(
     ray: &Ray,
-    sphere: &'a Sphere,
+    object: &'a Object,
 ) -> Option<(Intersection<'a>, Intersection<'a>)> {
-    let ray2 = ray.transform(sphere.transform.invert());
+    let ray2 = ray.transform(object.transform().invert());
     let oc = ray2.origin
         - Point {
             x: 0.0,
@@ -45,11 +45,11 @@ pub fn intersect<'a>(
         return Some((
             Intersection {
                 distance: t1,
-                object: sphere,
+                object: object,
             },
             Intersection {
                 distance: t2,
-                object: sphere,
+                object: object,
             },
         ));
     }
@@ -59,6 +59,7 @@ pub fn intersect<'a>(
 #[cfg(test)]
 mod tests {
     use crate::material::*;
+    use crate::objects::sphere::*;
     use crate::ray::*;
 
     #[test]
