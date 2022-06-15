@@ -1,9 +1,29 @@
 use std::ops::{Add, Mul};
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Color {
     pub red: f32,
     pub green: f32,
     pub blue: f32,
+}
+
+impl Color {
+    pub fn black() -> Self {
+        Color {
+            red: 0.0,
+            green: 0.0,
+            blue: 0.0,
+        }
+    }
+}
+
+impl Default for Color {
+    fn default() -> Self {
+        Color {
+            red: 1.0,
+            green: 1.0,
+            blue: 1.0,
+        }
+    }
 }
 
 impl Mul for Color {

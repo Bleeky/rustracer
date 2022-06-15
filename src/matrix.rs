@@ -283,8 +283,6 @@ impl Mul<Point> for Matrix44 {
     type Output = Point;
 
     fn mul(self, other: Point) -> Point {
-        println!("{}", other);
-        println!("{}", self);
         Point {
             x: other.x * self.elements[0][0]
                 + other.y * self.elements[0][1]

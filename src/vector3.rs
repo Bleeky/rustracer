@@ -33,6 +33,10 @@ impl Vector3 {
     pub fn dot(&self, other: &Vector3) -> f64 {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
+
+    pub fn reflect(&self, normal: &Vector3) -> Vector3 {
+        *self - *normal * 2.0 * self.dot(normal)
+    }
 }
 
 impl Sub for Vector3 {
@@ -149,6 +153,27 @@ mod tests {
                 x: -2.0,
                 y: 2.0,
                 z: 2.0,
+            }
+        );
+    }
+    #[test]
+    fn test_vector_reflecting() {
+        let v = Vector3 {
+            x: 1.0,
+            y: -1.0,
+            z: 0.0,
+        };
+        let n = Vector3 {
+            x: 0.0,
+            y: 1.0,
+            z: 0.0,
+        };
+        assert_eq!(
+            v.reflect(&n),
+            Vector3 {
+                x: 1.0,
+                y: 1.0,
+                z: 0.0,
             }
         );
     }
