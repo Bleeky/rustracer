@@ -1,9 +1,99 @@
+use crate::color::*;
+use crate::light::lighting;
 use crate::objects::*;
+use crate::point::*;
+use crate::ray::*;
+use crate::vector3::*;
+use crate::world::*;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Intersection<'a> {
     pub object: &'a Object,
     pub distance: f64,
+}
+
+pub fn intersect_world<'a>(ray: &Ray, world: &'a World) -> Vec<Intersection<'a>> {
+    let mut t: Vec<Intersection> = world
+        .objects
+        .iter()
+        .filter_map(|s| {
+            s.intersect(ray).map(|d| {
+                (
+                    Intersection {
+                        object: s,
+                        distance: d.0,
+                    },
+                    Intersection {
+                        object: s,
+                        distance: d.1,
+                    },
+                )
+            })
+        })
+        .flat_map(|x| vec![x.0, x.1])
+        .collect();
+    t.sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
+    t
+}
+
+pub fn intersect<'a>(
+    ray: &Ray,
+    object: &'a Object,
+) -> Option<(Intersection<'a>, Intersection<'a>)> {
+    let ray2 = ray.transform(object.transform().invert());
+    let oc = ray2.origin
+        - Point {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+    let a = ray2.direction.dot(&ray2.direction);
+    let b = 2.0 * oc.dot(&ray2.direction);
+    let c = oc.dot(&oc) - 1.0;
+    let discriminant = b * b - 4.0 * a * c;
+    if discriminant >= 0.0 {
+        let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
+        let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
+        return Some((
+            Intersection {
+                distance: t1,
+                object: object,
+            },
+            Intersection {
+                distance: t2,
+                object: object,
+            },
+        ));
+    }
+    None
+}
+
+pub struct Computations {
+    pub distance: f64,
+    pub point: Point,
+    pub eyev: Vector3,
+    pub normalv: Vector3,
+    pub object: Object,
+    pub inside: bool,
+}
+
+pub fn prepare_computations(intersection: &Intersection, ray: &Ray) -> Computations {
+    let mut inside: bool = false;
+    let point = ray.position(intersection.distance);
+    let eyev = -ray.direction;
+    let mut normalv = intersection.object.normal_at(&point);
+    if normalv.dot(&eyev) < 0.0 {
+        inside = true;
+        normalv = -normalv;
+    }
+    Computations {
+        distance: intersection.distance,
+        object: intersection.object.clone(),
+        point,
+        eyev,
+        normalv,
+        inside,
+    }
 }
 
 // Hit() retrieves an array of intersections from a ray and then return the closest one (above zero distance)
@@ -15,42 +105,36 @@ pub fn hit<'a>(intersections: &[Intersection<'a>]) -> Option<Intersection<'a>> {
         .min_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap())
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::intersection::*;
-    use crate::material::*;
-    use crate::objects::sphere::*;
+pub fn shade_hit(world: &World, computations: &Computations) -> Color {
+    world.lights.iter().fold(
+        Color {
+            red: 0.0,
+            green: 0.0,
+            blue: 0.0,
+        },
+        |acc, x| {
+            acc + lighting(
+                computations.object.material(),
+                &x,
+                &computations.point,
+                &computations.eyev,
+                &computations.normalv,
+            )
+        },
+    )
+}
 
-    #[test]
-    fn test_smallest_intersection() {
-        let i1 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
-            distance: 1.0,
-        };
-        let i2 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
-            distance: 2.0,
-        };
-        assert_eq!(hit(&[i1, i2]).unwrap(), i1);
-    }
-    #[test]
-    fn test_smallest_intersection_2() {
-        let i1 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
-            distance: 5.0,
-        };
-        let i2 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
-            distance: 7.0,
-        };
-        let i3 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
-            distance: -3.0,
-        };
-        let i4 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
-            distance: 2.0,
-        };
-        assert_eq!(hit(&[i1, i2, i3, i4]).unwrap(), i4);
+pub fn color_at(world: &World, ray: &Ray) -> Color {
+    match hit(&intersect_world(ray, world)) {
+        Some(x) => shade_hit(world, &prepare_computations(&x, ray)),
+        None => Color {
+            red: 0.0,
+            green: 0.0,
+            blue: 0.0,
+        },
     }
 }
+
+#[cfg(test)]
+#[path = "./intersection_tests.rs"]
+mod intersection_tests;

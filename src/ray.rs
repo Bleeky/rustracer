@@ -1,6 +1,4 @@
-use crate::intersection::*;
 use crate::matrix::*;
-use crate::objects::*;
 use crate::point::*;
 use crate::vector3::*;
 
@@ -24,42 +22,8 @@ impl Ray {
     }
 }
 
-pub fn intersect<'a>(
-    ray: &Ray,
-    object: &'a Object,
-) -> Option<(Intersection<'a>, Intersection<'a>)> {
-    let ray2 = ray.transform(object.transform().invert());
-    let oc = ray2.origin
-        - Point {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        };
-    let a = ray2.direction.dot(&ray2.direction);
-    let b = 2.0 * oc.dot(&ray2.direction);
-    let c = oc.dot(&oc) - 1.0;
-    let discriminant = b * b - 4.0 * a * c;
-    if discriminant >= 0.0 {
-        let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
-        let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
-        return Some((
-            Intersection {
-                distance: t1,
-                object: object,
-            },
-            Intersection {
-                distance: t2,
-                object: object,
-            },
-        ));
-    }
-    None
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::material::*;
-    use crate::objects::sphere::*;
     use crate::ray::*;
 
     #[test]
@@ -127,82 +91,6 @@ mod tests {
     }
 
     #[test]
-    fn test_intersection_1() {
-        let ray = Ray {
-            origin: Point {
-                x: 0.0,
-                y: 0.0,
-                z: -5.0,
-            },
-            direction: Vector3 {
-                x: 0.0,
-                y: 0.0,
-                z: 1.0,
-            },
-        };
-        let sphere = Sphere::new(Material::default());
-        let i = intersect(&ray, &sphere);
-        assert_eq!(i.unwrap().0.distance, 4.0);
-        assert_eq!(i.unwrap().1.distance, 6.0);
-    }
-    #[test]
-    fn test_intersection_2() {
-        let ray = Ray {
-            origin: Point {
-                x: 0.0,
-                y: 2.0,
-                z: -5.0,
-            },
-            direction: Vector3 {
-                x: 0.0,
-                y: 0.0,
-                z: 1.0,
-            },
-        };
-        let sphere = Sphere::new(Material::default());
-        let i = intersect(&ray, &sphere);
-        assert_eq!(i, None);
-    }
-    #[test]
-    fn test_intersection_3() {
-        let ray = Ray {
-            origin: Point {
-                x: 0.0,
-                y: 1.0,
-                z: -5.0,
-            },
-            direction: Vector3 {
-                x: 0.0,
-                y: 0.0,
-                z: 1.0,
-            },
-        };
-        let sphere = Sphere::new(Material::default());
-        let i = intersect(&ray, &sphere);
-        assert_eq!(i.unwrap().0.distance, 5.0);
-        assert_eq!(i.unwrap().1.distance, 5.0);
-    }
-    #[test]
-    fn test_intersection_4() {
-        let ray = Ray {
-            origin: Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
-            direction: Vector3 {
-                x: 0.0,
-                y: 0.0,
-                z: 1.0,
-            },
-        };
-        let sphere = Sphere::new(Material::default());
-        let i = intersect(&ray, &sphere);
-        assert_eq!(i.unwrap().0.distance, -1.0);
-        assert_eq!(i.unwrap().1.distance, 1.0);
-    }
-
-    #[test]
     fn test_transform_ray_1() {
         let ray = Ray {
             origin: Point {
@@ -235,6 +123,7 @@ mod tests {
             }
         );
     }
+
     #[test]
     fn test_transform_ray_2() {
         let ray = Ray {

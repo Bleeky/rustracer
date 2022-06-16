@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::objects::sphere::*;
+    use crate::objects::*;
     use crate::point::Point;
     use crate::ray::*;
     use crate::vector3::Vector3;
@@ -26,7 +27,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let mut s = Sphere::new(Material::default());
+        let mut s = Object::Sphere(Sphere::new(Material::default()));
         let t = Matrix44::translation(5.0, 0.0, 0.0);
         s.set_transform(t);
         let i = intersect(&r, &s);
@@ -46,7 +47,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let mut s = Sphere::new(Material::default());
+        let mut s = Object::Sphere(Sphere::new(Material::default()));
         let t = Matrix44::scaling(2.0, 2.0, 2.0);
         s.set_transform(t);
         let i = intersect(&r, &s);
@@ -57,7 +58,7 @@ mod tests {
     fn test_normal_at() {
         let s = Sphere::new(Material::default());
         assert_eq!(
-            s.normal_at(Point {
+            s.normal_at(&Point {
                 x: 1.0,
                 y: 0.0,
                 z: 0.0,
@@ -73,7 +74,7 @@ mod tests {
     fn test_normal_at_2() {
         let s = Sphere::new(Material::default());
         assert_eq!(
-            s.normal_at(Point {
+            s.normal_at(&Point {
                 x: 0.0,
                 y: 1.0,
                 z: 0.0,
@@ -89,7 +90,7 @@ mod tests {
     fn test_normal_at_3() {
         let s = Sphere::new(Material::default());
         assert_eq!(
-            s.normal_at(Point {
+            s.normal_at(&Point {
                 x: 0.0,
                 y: 1.0,
                 z: 0.0,
@@ -107,7 +108,7 @@ mod tests {
         let mut s = Sphere::new(Material::default());
         s.set_transform(Matrix44::translation(0.0, 1.0, 0.0));
         assert_eq!(
-            s.normal_at(Point {
+            s.normal_at(&Point {
                 x: 0.0,
                 y: 1.70711,
                 z: -0.70711,

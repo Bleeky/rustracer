@@ -1,6 +1,9 @@
+use crate::intersection::*;
 use crate::material::*;
 use crate::matrix::*;
+use crate::objects::*;
 use crate::point::Point;
+use crate::ray::*;
 use crate::vector3::Vector3;
 
 #[derive(Copy, Clone, Debug)]
@@ -24,6 +27,7 @@ impl Sphere {
             transform: Matrix44::identity(),
         }
     }
+
     pub fn set_transform(&mut self, transform: Matrix44) {
         self.transform = transform;
     }
@@ -33,6 +37,26 @@ impl Sphere {
         let object_normal = object_point - self.center;
         let world_normal = self.transform.invert().transpose() * object_normal;
         world_normal.normalize()
+    }
+
+    pub fn intersect<'a>(&self, ray: &Ray) -> Option<(f64, f64)> {
+        let ray2 = ray.transform(self.transform.invert());
+        let oc = ray2.origin
+            - Point {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            };
+        let a = ray2.direction.dot(&ray2.direction);
+        let b = 2.0 * oc.dot(&ray2.direction);
+        let c = oc.dot(&oc) - 1.0;
+        let discriminant = b * b - 4.0 * a * c;
+        if discriminant >= 0.0 {
+            let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
+            let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
+            return Some((t1, t2));
+        }
+        None
     }
 }
 

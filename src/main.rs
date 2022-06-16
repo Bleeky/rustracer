@@ -1,4 +1,3 @@
-use crate::intersection::hit;
 // use image::{DynamicImage, GenericImage};
 use pixels::{Error, Pixels, SurfaceTexture};
 use winit::dpi::LogicalSize;
@@ -15,8 +14,10 @@ mod objects;
 mod point;
 mod ray;
 mod vector3;
+mod world;
 
 use crate::color::*;
+use crate::intersection::*;
 use crate::light::*;
 use crate::material::*;
 use crate::matrix::*;
@@ -24,6 +25,7 @@ use crate::objects::sphere::*;
 use crate::objects::*;
 use crate::point::*;
 use crate::ray::*;
+use crate::world::*;
 
 const WIDTH: u32 = 1000;
 const HEIGHT: u32 = 1000;
@@ -67,35 +69,12 @@ fn draw(frame: &mut [u8]) {
     let wall_size = 7.0;
     let pixel_size = wall_size / WIDTH as f32;
     let half = wall_size / 2.0;
+    let world = World::default();
     let ray_origin = Point {
         x: 0.0,
         y: 0.0,
         z: -5.0,
     };
-    let mut sphere = Object::Sphere(Sphere::new(Material {
-        color: Color {
-            red: 1.0,
-            green: 0.9,
-            blue: 1.0,
-        },
-        ..Material::default()
-    }));
-    let light = Light::PointLight(PointLight {
-        position: Point {
-            x: -10.0,
-            y: 10.0,
-            z: -10.0,
-        },
-        intensity: 1.0,
-        color: Color {
-            red: 1.0,
-            green: 1.0,
-            blue: 1.0,
-        },
-    });
-    // let sphere_transform = Matrix44::translation(0.0, 0.0, 15.0);
-    // let sphere_transform = Matrix44::scaling(0.5, 1.0, 1.0);
-    // sphere.set_transform(sphere_transform);
     for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
         let x = (i % WIDTH as usize) as u32;
         let y = (i / WIDTH as usize) as u32;
@@ -110,22 +89,12 @@ fn draw(frame: &mut [u8]) {
             origin: ray_origin,
             direction: (position - ray_origin).normalize(),
         };
-        let xs = intersect(&ray, &sphere);
-        match xs {
-            Some(x) => {
-                let hit = hit(&[x.0, x.1]).unwrap();
-                let point = ray.position(hit.distance);
-                let normal = hit.object.normal_at(&point);
-                let eye = -ray.direction;
-                let color = lighting(&hit.object.material(), &light, &point, &eye, &normal);
-                pixel.copy_from_slice(&[
-                    (color.red * 255.0) as u8,
-                    (color.green * 255.0) as u8,
-                    (color.blue * 255.0) as u8,
-                    0xff,
-                ]);
-            }
-            None => {}
-        }
+        let color = color_at(&world, &ray);
+        pixel.copy_from_slice(&[
+            (color.red * 255.0) as u8,
+            (color.green * 255.0) as u8,
+            (color.blue * 255.0) as u8,
+            0xff,
+        ]);
     }
 }
