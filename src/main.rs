@@ -69,7 +69,13 @@ fn draw(frame: &mut [u8]) {
     let wall_size = 7.0;
     let pixel_size = wall_size / WIDTH as f32;
     let half = wall_size / 2.0;
-    let world = World::default();
+    let mut world = World::default();
+    world.objects[0].set_transform(Matrix44::scaling(0.3, 0.3, 0.3).translate(-0.3, 0.5, 0.0));
+    world.objects[1].set_transform(
+        Matrix44::scaling(0.5, 0.5, 0.5)
+            .translate(0.5, 0.0, 0.0)
+            .shear(0.0, 0.0, 0.2, 0.0, 0.0, 0.0),
+    );
     let ray_origin = Point {
         x: 0.0,
         y: 0.0,
