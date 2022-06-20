@@ -5,6 +5,7 @@ use winit::event::{Event, VirtualKeyCode};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
+mod camera;
 mod color;
 mod intersection;
 mod light;
@@ -16,6 +17,7 @@ mod ray;
 mod vector3;
 mod world;
 
+use crate::camera::*;
 use crate::color::*;
 use crate::intersection::*;
 use crate::light::*;
@@ -25,10 +27,11 @@ use crate::objects::sphere::*;
 use crate::objects::*;
 use crate::point::*;
 use crate::ray::*;
+use crate::vector3::*;
 use crate::world::*;
 
 const WIDTH: u32 = 1000;
-const HEIGHT: u32 = 1000;
+const HEIGHT: u32 = 800;
 
 fn main() -> Result<(), Error> {
     let mut input = WinitInputHelper::new();
@@ -65,36 +68,114 @@ fn main() -> Result<(), Error> {
 }
 
 fn draw(frame: &mut [u8]) {
-    let wall_z = 10.0;
-    let wall_size = 7.0;
-    let pixel_size = wall_size / WIDTH as f32;
-    let half = wall_size / 2.0;
-    let mut world = World::default();
-    world.objects[0].set_transform(Matrix44::scaling(0.3, 0.3, 0.3).translate(-0.3, 0.5, 0.0));
-    world.objects[1].set_transform(
-        Matrix44::scaling(0.5, 0.5, 0.5)
-            .translate(0.5, 0.0, 0.0)
-            .shear(0.0, 0.0, 0.2, 0.0, 0.0, 0.0),
-    );
-    let ray_origin = Point {
-        x: 0.0,
-        y: 0.0,
-        z: -5.0,
+    let floor_material = Material {
+        specular: 0.0,
+        color: Color {
+            red: 1.0,
+            green: 0.9,
+            blue: 0.9,
+        },
+        ..Material::default()
     };
+    let mut floor = Object::Sphere(Sphere::new(floor_material));
+    floor.set_transform(Matrix44::scaling(10.0, 0.01, 10.0));
+    let mut right_wall = Object::Sphere(Sphere::new(floor_material));
+    right_wall.set_transform(
+        Matrix44::scaling(10.0, 0.01, 10.0)
+            .rotate_x(std::f64::consts::FRAC_PI_2)
+            .rotate_y(std::f64::consts::FRAC_PI_4)
+            .translate(0.0, 0.0, 5.0),
+    );
+    let mut left_wall = Object::Sphere(Sphere::new(floor_material));
+    left_wall.set_transform(
+        Matrix44::scaling(10.0, 0.01, 10.0)
+            .rotate_x(std::f64::consts::FRAC_PI_2)
+            .rotate_y(-std::f64::consts::FRAC_PI_4)
+            .translate(0.0, 0.0, 5.0),
+    );
+    let mut middlesphere = Object::Sphere(Sphere::new(Material {
+        color: Color {
+            red: 0.1,
+            green: 1.0,
+            blue: 0.5,
+        },
+        diffuse: 0.7,
+        specular: 0.3,
+        ..Material::default()
+    }));
+    middlesphere.set_transform(Matrix44::translation(-0.5, 1.0, 0.5));
+    // middlesphere.set_transform(Matrix44::rotation_z(std::f64::consts::FRAC_PI_2));
+    let mut rightsphere = Object::Sphere(Sphere::new(Material {
+        color: Color {
+            red: 0.5,
+            green: 1.0,
+            blue: 0.1,
+        },
+        diffuse: 0.7,
+        specular: 0.3,
+        ..Material::default()
+    }));
+    rightsphere.set_transform(Matrix44::scaling(0.5, 0.5, 0.5).translate(1.5, 0.5, -0.5));
+    let mut leftsphere = Object::Sphere(Sphere::new(Material {
+        color: Color {
+            red: 1.0,
+            green: 0.8,
+            blue: 0.1,
+        },
+        diffuse: 0.7,
+        specular: 0.3,
+        ..Material::default()
+    }));
+    leftsphere.set_transform(Matrix44::scaling(0.33, 0.33, 0.33).translate(-1.5, 0.33, -0.75));
+    let world = World {
+        objects: vec![
+            right_wall,
+            // left_wall,
+            // floor,
+            // middlesphere,
+            // rightsphere,
+            // leftsphere,
+        ],
+        lights: vec![Light::PointLight(PointLight {
+            position: Point {
+                x: -10.0,
+                y: 10.0,
+                z: -10.0,
+            },
+            intensity: 1.0,
+            color: Color {
+                red: 1.0,
+                green: 1.0,
+                blue: 1.0,
+            },
+        })],
+    };
+    let mut cam = Camera::new(WIDTH, HEIGHT, std::f64::consts::PI / 3.0);
+    cam.transform = view_transform(
+        Point {
+            x: 0.0,
+            y: 1.5,
+            // y: 0.0,
+            z: -5.0,
+        },
+        Point {
+            x: 0.0,
+            y: 1.0,
+            // y: 0.0,
+            z: 0.0,
+        },
+        Vector3 {
+            x: 0.0,
+            y: 1.0,
+            z: 0.0,
+        },
+    );
+
     for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
         let x = (i % WIDTH as usize) as u32;
         let y = (i / WIDTH as usize) as u32;
-        let world_y = half - pixel_size * y as f32;
-        let world_x = -half + pixel_size * x as f32;
-        let position = Point {
-            x: world_x as f64,
-            y: world_y as f64,
-            z: wall_z,
-        };
-        let ray = Ray {
-            origin: ray_origin,
-            direction: (position - ray_origin).normalize(),
-        };
+
+        let ray = cam.ray_for_pixel(x, y);
         let color = color_at(&world, &ray);
         pixel.copy_from_slice(&[
             (color.red * 255.0) as u8,

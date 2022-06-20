@@ -37,6 +37,14 @@ impl Vector3 {
     pub fn reflect(&self, normal: &Vector3) -> Vector3 {
         *self - *normal * 2.0 * self.dot(normal)
     }
+
+    pub fn cross(&self, other: &Vector3) -> Vector3 {
+        Vector3 {
+            x: self.y * other.z - self.z * other.y,
+            y: self.z * other.x - self.x * other.z,
+            z: self.x * other.y - self.y * other.x,
+        }
+    }
 }
 
 impl Sub for Vector3 {
@@ -89,7 +97,9 @@ impl Neg for Vector3 {
 
 impl PartialEq for Vector3 {
     fn eq(&self, other: &Self) -> bool {
-        self.x == other.x && self.y == other.y && self.z == other.z
+        (self.x - other.x).abs() < 1e-15
+            && (self.y - other.y).abs() < 1e-15
+            && (self.z - other.z).abs() < 1e-15
     }
 }
 

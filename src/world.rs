@@ -23,7 +23,6 @@ impl Default for World {
             specular: 0.2,
             ..Material::default()
         });
-        // sphere1.set_transform(Matrix44::scaling(0.3, 0.3, 0.3).translate(-1.0, 0.0, 0.0));
         let mut sphere2 = Sphere::new(Material {
             color: Color {
                 red: 1.0,
@@ -33,11 +32,6 @@ impl Default for World {
             ..Material::default()
         });
         sphere2.set_transform(Matrix44::scaling(0.5, 0.5, 0.5));
-        // sphere2.set_transform(
-        //     Matrix44::scaling(0.5, 0.5, 0.5)
-        //         .translate(0.5, 0.0, 0.0)
-        //         .shear(0.0, 0.0, 0.2, 0.0, 0.0, 0.0),
-        // );
         World {
             objects: vec![Object::Sphere(sphere1), Object::Sphere(sphere2)],
             lights: vec![Light::PointLight(PointLight {

@@ -1,7 +1,116 @@
 #[cfg(test)]
 mod tests {
     use crate::matrix::*;
+    use crate::point::*;
     use crate::vector3::*;
+
+    #[test]
+    fn test_vec_negate() {
+        let v = Vector3 {
+            x: 1.0,
+            y: -2.0,
+            z: 3.0,
+        };
+        assert_eq!(
+            -v,
+            Vector3 {
+                x: -1.0,
+                y: 2.0,
+                z: -3.0,
+            }
+        );
+    }
+
+    #[test]
+    fn test_vec_mul_scalar() {
+        let v = Vector3 {
+            x: 1.0,
+            y: -2.0,
+            z: 3.0,
+        };
+        assert_eq!(
+            v * 3.5,
+            Vector3 {
+                x: 3.5,
+                y: -7.0,
+                z: 10.5,
+            }
+        );
+    }
+    #[test]
+    fn test_vec_len() {
+        let v = Vector3 {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+        };
+        assert_eq!(v.length(), 14.0_f64.sqrt());
+    }
+    #[test]
+    fn test_vec_len_2() {
+        let v = Vector3 {
+            x: -1.0,
+            y: -2.0,
+            z: -3.0,
+        };
+        assert_eq!(v.length(), 14.0_f64.sqrt());
+    }
+    #[test]
+    fn test_vec_normalize_1() {
+        let v = Vector3 {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+        };
+        assert_eq!(
+            v.normalize(),
+            Vector3 {
+                x: 1.0 / 14.0_f64.sqrt(),
+                y: 2.0 / 14.0_f64.sqrt(),
+                z: 3.0 / 14.0_f64.sqrt(),
+            }
+        );
+    }
+    #[test]
+    fn test_vec_normalize_2() {
+        let v = Vector3 {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+        };
+        let norm = v.normalize();
+        assert_eq!(norm.length(), 1.0);
+    }
+
+    #[test]
+    fn test_vec_cross_product() {
+        let a = Vector3 {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+        };
+        let b = Vector3 {
+            x: 2.0,
+            y: 3.0,
+            z: 4.0,
+        };
+        assert_eq!(
+            a.cross(&b),
+            Vector3 {
+                x: -1.0,
+                y: 2.0,
+                z: -1.0,
+            }
+        );
+        assert_eq!(
+            b.cross(&a),
+            Vector3 {
+                x: 1.0,
+                y: -2.0,
+                z: 1.0,
+            }
+        );
+    }
 
     #[test]
     fn test_vector_mul_translation() {
@@ -72,6 +181,27 @@ mod tests {
             Vector3 {
                 x: 1.0,
                 y: 1.0,
+                z: 0.0,
+            }
+        );
+    }
+    #[test]
+    fn test_vector_reflecting_off_slanted() {
+        let v = Vector3 {
+            x: 0.0,
+            y: -1.0,
+            z: 0.0,
+        };
+        let n = Vector3 {
+            x: 2.0_f64.sqrt() / 2.0,
+            y: 2.0_f64.sqrt() / 2.0,
+            z: 0.0,
+        };
+        assert_eq!(
+            v.reflect(&n),
+            Vector3 {
+                x: 1.0,
+                y: 0.0,
                 z: 0.0,
             }
         );

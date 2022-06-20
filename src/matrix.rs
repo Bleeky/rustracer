@@ -235,11 +235,27 @@ impl Matrix44 {
         }
         for i in 0..=3 {
             for j in 0..=3 {
-                matrix44.elements[i][j] = self.cofactor(i, j) / det;
+                matrix44.elements[j][i] = self.cofactor(i, j) / det;
             }
         }
-        matrix44.transpose()
+        matrix44
     }
+}
+
+pub fn view_transform(from: Point, to: Point, up: Vector3) -> Matrix44 {
+    let forward = (to - from).normalize();
+    let upn = up.normalize();
+    let left = forward.cross(&upn);
+    let true_up = left.cross(&forward);
+    let orientation = Matrix44 {
+        elements: [
+            [left.x, left.y, left.z, 0.0],
+            [true_up.x, true_up.y, true_up.z, 0.0],
+            [-forward.x, -forward.y, -forward.z, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ],
+    };
+    orientation * Matrix44::translation(-from.x, -from.y, -from.z)
 }
 
 impl Mul for Matrix44 {
@@ -266,9 +282,9 @@ impl Mul<Vector3> for Matrix44 {
 
     fn mul(self, other: Vector3) -> Vector3 {
         Vector3 {
-            x: (other.x * self.elements[0][0]
+            x: other.x * self.elements[0][0]
                 + other.y * self.elements[1][0]
-                + other.z * self.elements[2][0]),
+                + other.z * self.elements[2][0],
             y: other.x * self.elements[0][1]
                 + other.y * self.elements[1][1]
                 + other.z * self.elements[2][1],
@@ -304,7 +320,7 @@ impl PartialEq for Matrix44 {
     fn eq(&self, other: &Self) -> bool {
         for i in 0..=3 {
             for j in 0..=3 {
-                if (self.elements[i][j] - other.elements[i][j]).abs() > 1e-15 {
+                if (self.elements[i][j] - other.elements[i][j]).abs() > 1e-14 {
                     return false;
                 }
             }

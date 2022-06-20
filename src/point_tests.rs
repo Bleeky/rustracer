@@ -38,6 +38,23 @@ mod tests {
     }
 
     #[test]
+    fn test_point_scaling() {
+        let transform = Matrix44::scaling(2.0, 3.0, 4.0);
+        let p = Point {
+            x: -4.0,
+            y: 6.0,
+            z: 8.0,
+        };
+        assert_eq!(
+            transform * p,
+            Point {
+                x: -8.0,
+                y: 18.0,
+                z: 32.0,
+            }
+        );
+    }
+    #[test]
     fn test_reflection_neg_scaling() {
         let ms = Matrix44::scaling(-1.0, 1.0, 1.0);
         let p = Point {

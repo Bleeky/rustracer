@@ -1,7 +1,5 @@
-use crate::intersection::*;
 use crate::material::*;
 use crate::matrix::*;
-use crate::objects::*;
 use crate::point::Point;
 use crate::ray::*;
 use crate::vector3::Vector3;
@@ -34,22 +32,28 @@ impl Sphere {
 
     pub fn normal_at(&self, point: &Point) -> Vector3 {
         let object_point = self.transform.invert() * *point;
-        let object_normal = object_point - self.center;
+        let object_normal = object_point
+            - Point {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            };
         let world_normal = self.transform.invert().transpose() * object_normal;
+        // let world_normal = self.transform.invert() * object_normal;
         world_normal.normalize()
     }
 
     pub fn intersect<'a>(&self, ray: &Ray) -> Option<(f64, f64)> {
         let ray2 = ray.transform(self.transform.invert());
-        let oc = ray2.origin
+        let sphere_to_ray = ray2.origin
             - Point {
                 x: 0.0,
                 y: 0.0,
                 z: 0.0,
             };
         let a = ray2.direction.dot(&ray2.direction);
-        let b = 2.0 * oc.dot(&ray2.direction);
-        let c = oc.dot(&oc) - 1.0;
+        let b = 2.0 * ray2.direction.dot(&sphere_to_ray);
+        let c = sphere_to_ray.dot(&sphere_to_ray) - 1.0;
         let discriminant = b * b - 4.0 * a * c;
         if discriminant >= 0.0 {
             let t1 = (-b - discriminant.sqrt()) / (2.0 * a);

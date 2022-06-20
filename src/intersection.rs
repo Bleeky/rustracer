@@ -36,38 +36,6 @@ pub fn intersect_world<'a>(ray: &Ray, world: &'a World) -> Vec<Intersection<'a>>
     t
 }
 
-pub fn intersect<'a>(
-    ray: &Ray,
-    object: &'a Object,
-) -> Option<(Intersection<'a>, Intersection<'a>)> {
-    let ray2 = ray.transform(object.transform().invert());
-    let oc = ray2.origin
-        - Point {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        };
-    let a = ray2.direction.dot(&ray2.direction);
-    let b = 2.0 * oc.dot(&ray2.direction);
-    let c = oc.dot(&oc) - 1.0;
-    let discriminant = b * b - 4.0 * a * c;
-    if discriminant >= 0.0 {
-        let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
-        let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
-        return Some((
-            Intersection {
-                distance: t1,
-                object: object,
-            },
-            Intersection {
-                distance: t2,
-                object: object,
-            },
-        ));
-    }
-    None
-}
-
 pub struct Computations {
     pub distance: f64,
     pub point: Point,
