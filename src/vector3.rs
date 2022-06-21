@@ -1,3 +1,4 @@
+use crate::matrix::*;
 use std::fmt::Display;
 use std::ops::{Add, Mul, Neg, Sub};
 
@@ -20,11 +21,10 @@ impl Vector3 {
     pub fn normalize(&self) -> Vector3 {
         let length = self.length();
         if length > 0.0 {
-            let inv_len = 1.0 / length;
             return Vector3 {
-                x: self.x * inv_len,
-                y: self.y * inv_len,
-                z: self.z * inv_len,
+                x: self.x / length,
+                y: self.y / length,
+                z: self.z / length,
             };
         }
         *self
@@ -79,6 +79,24 @@ impl Mul<f64> for Vector3 {
             x: self.x * other,
             y: self.y * other,
             z: self.z * other,
+        }
+    }
+}
+
+impl Mul<Matrix44> for Vector3 {
+    type Output = Vector3;
+
+    fn mul(self, other: Matrix44) -> Vector3 {
+        Vector3 {
+            x: self.x * other.elements[0][0]
+                + self.y * other.elements[0][1]
+                + self.z * other.elements[0][2],
+            y: self.x * other.elements[1][0]
+                + self.y * other.elements[1][1]
+                + self.z * other.elements[1][2],
+            z: self.x * other.elements[2][0]
+                + self.y * other.elements[2][1]
+                + self.z * other.elements[2][2],
         }
     }
 }

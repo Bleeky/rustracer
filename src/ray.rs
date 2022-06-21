@@ -1,6 +1,7 @@
 use crate::matrix::*;
 use crate::point::*;
 use crate::vector3::*;
+use std::fmt::Display;
 
 pub struct Ray {
     pub origin: Point,
@@ -8,17 +9,24 @@ pub struct Ray {
 }
 
 impl Ray {
-    pub fn position(&self, distance: f64) -> Point {
-        self.origin + (self.direction * distance)
+    pub fn position(&self, t: f64) -> Point {
+        self.origin + self.direction * t
     }
 
     pub fn transform(&self, transform: Matrix44) -> Ray {
-        let origin = transform * self.origin;
-        let direction = transform * self.direction;
-        Ray {
-            origin: origin,
-            direction: direction,
-        }
+        let origin = self.origin * transform;
+        let direction = self.direction * transform;
+        Ray { origin, direction }
+    }
+}
+
+impl Display for Ray {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Ray {{ origin: {}, direction: {} }}",
+            self.origin, self.direction
+        )
     }
 }
 

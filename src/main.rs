@@ -86,7 +86,15 @@ fn draw(frame: &mut [u8]) {
             .rotate_y(std::f64::consts::FRAC_PI_4)
             .translate(0.0, 0.0, 5.0),
     );
-    let mut left_wall = Object::Sphere(Sphere::new(floor_material));
+    let mut left_wall = Object::Sphere(Sphere::new(Material {
+        specular: 0.0,
+        color: Color {
+            red: 0.0,
+            green: 0.9,
+            blue: 0.9,
+        },
+        ..Material::default()
+    }));
     left_wall.set_transform(
         Matrix44::scaling(10.0, 0.01, 10.0)
             .rotate_x(std::f64::consts::FRAC_PI_2)
@@ -104,7 +112,6 @@ fn draw(frame: &mut [u8]) {
         ..Material::default()
     }));
     middlesphere.set_transform(Matrix44::translation(-0.5, 1.0, 0.5));
-    // middlesphere.set_transform(Matrix44::rotation_z(std::f64::consts::FRAC_PI_2));
     let mut rightsphere = Object::Sphere(Sphere::new(Material {
         color: Color {
             red: 0.5,
@@ -130,11 +137,11 @@ fn draw(frame: &mut [u8]) {
     let world = World {
         objects: vec![
             right_wall,
-            // left_wall,
-            // floor,
-            // middlesphere,
-            // rightsphere,
-            // leftsphere,
+            left_wall,
+            floor,
+            middlesphere,
+            rightsphere,
+            leftsphere,
         ],
         lights: vec![Light::PointLight(PointLight {
             position: Point {
@@ -155,13 +162,11 @@ fn draw(frame: &mut [u8]) {
         Point {
             x: 0.0,
             y: 1.5,
-            // y: 0.0,
             z: -5.0,
         },
         Point {
             x: 0.0,
             y: 1.0,
-            // y: 0.0,
             z: 0.0,
         },
         Vector3 {
@@ -174,7 +179,6 @@ fn draw(frame: &mut [u8]) {
     for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
         let x = (i % WIDTH as usize) as u32;
         let y = (i / WIDTH as usize) as u32;
-
         let ray = cam.ray_for_pixel(x, y);
         let color = color_at(&world, &ray);
         pixel.copy_from_slice(&[

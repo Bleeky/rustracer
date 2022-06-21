@@ -283,13 +283,13 @@ impl Mul<Vector3> for Matrix44 {
     fn mul(self, other: Vector3) -> Vector3 {
         Vector3 {
             x: other.x * self.elements[0][0]
-                + other.y * self.elements[1][0]
-                + other.z * self.elements[2][0],
-            y: other.x * self.elements[0][1]
+                + other.y * self.elements[0][1]
+                + other.z * self.elements[0][2],
+            y: other.x * self.elements[1][0]
                 + other.y * self.elements[1][1]
-                + other.z * self.elements[2][1],
-            z: other.x * self.elements[0][2]
-                + other.y * self.elements[1][2]
+                + other.z * self.elements[1][2],
+            z: other.x * self.elements[2][0]
+                + other.y * self.elements[2][1]
                 + other.z * self.elements[2][2],
         }
     }
