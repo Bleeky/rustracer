@@ -1,5 +1,5 @@
 use crate::color::*;
-use crate::light::lighting;
+use crate::light::*;
 use crate::objects::*;
 use crate::point::*;
 use crate::ray::*;
@@ -7,30 +7,17 @@ use crate::vector3::*;
 use crate::world::*;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub struct Intersection<'a> {
-    pub object: &'a Object,
+pub struct Intersection {
+    pub object: Object,
     pub distance: f64,
 }
 
-pub fn intersect_world<'a>(ray: &Ray, world: &'a World) -> Vec<Intersection<'a>> {
+pub fn intersect_world<'a>(ray: &Ray, world: &'a World) -> Vec<Intersection> {
     let mut t: Vec<Intersection> = world
         .objects
         .iter()
-        .filter_map(|s| {
-            s.intersect(ray).map(|d| {
-                (
-                    Intersection {
-                        object: s,
-                        distance: d.0,
-                    },
-                    Intersection {
-                        object: s,
-                        distance: d.1,
-                    },
-                )
-            })
-        })
-        .flat_map(|x| vec![x.0, x.1])
+        .filter_map(|s| s.intersect(ray))
+        .flat_map(|x| x)
         .collect();
     t.sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
     t
@@ -43,6 +30,7 @@ pub struct Computations {
     pub normalv: Vector3,
     pub object: Object,
     pub inside: bool,
+    pub over_point: Point,
 }
 
 pub fn prepare_computations(intersection: &Intersection, ray: &Ray) -> Computations {
@@ -61,11 +49,13 @@ pub fn prepare_computations(intersection: &Intersection, ray: &Ray) -> Computati
         eyev,
         normalv,
         inside,
+        // over_point: point + normalv * f64::EPSILON,
+        over_point: point + normalv * 1e-11,
     }
 }
 
 // Hit() retrieves an array of intersections from a ray and then return the closest one (above zero distance)
-pub fn hit<'a>(intersections: &[Intersection<'a>]) -> Option<Intersection<'a>> {
+pub fn hit(intersections: Vec<Intersection>) -> Option<Intersection> {
     intersections
         .iter()
         .cloned()
@@ -80,20 +70,21 @@ pub fn shade_hit(world: &World, computations: &Computations) -> Color {
             green: 0.0,
             blue: 0.0,
         },
-        |acc, x| {
+        |acc, light| {
             acc + lighting(
                 computations.object.material(),
-                &x,
+                light,
                 &computations.point,
                 &computations.eyev,
                 &computations.normalv,
+                is_shadowed(world, &computations.over_point, light),
             )
         },
     )
 }
 
 pub fn color_at(world: &World, ray: &Ray) -> Color {
-    match hit(&intersect_world(ray, world)) {
+    match hit(intersect_world(ray, world)) {
         Some(x) => shade_hit(world, &prepare_computations(&x, ray)),
         None => Color {
             red: 0.0,

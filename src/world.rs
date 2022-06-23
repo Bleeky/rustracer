@@ -40,7 +40,6 @@ impl Default for World {
                     y: 10.0,
                     z: -10.0,
                 },
-                intensity: 1.0,
                 color: Color {
                     red: 1.0,
                     green: 1.0,

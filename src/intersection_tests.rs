@@ -1,70 +1,69 @@
 #[cfg(test)]
 mod tests {
-    use std::vec;
-
     use crate::intersection::*;
     use crate::light::*;
     use crate::material::*;
+    use crate::matrix::*;
     use crate::objects::sphere::*;
 
     #[test]
     fn test_smallest_intersection() {
         let i1 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(Material::default())),
             distance: 1.0,
         };
         let i2 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(Material::default())),
             distance: 2.0,
         };
-        assert_eq!(hit(&[i1, i2]).unwrap(), i1);
+        assert_eq!(hit(vec![i1, i2]).unwrap(), i1);
     }
 
     #[test]
     fn test_smallest_intersection_2() {
         let i1 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(Material::default())),
             distance: -1.0,
         };
         let i2 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(Material::default())),
             distance: 2.0,
         };
-        assert_eq!(hit(&[i1, i2]).unwrap(), i2);
+        assert_eq!(hit(vec![i1, i2]).unwrap(), i2);
     }
 
     #[test]
     fn test_smallest_intersection_3() {
         let i1 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(Material::default())),
             distance: -2.0,
         };
         let i2 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(Material::default())),
             distance: -1.0,
         };
-        assert!(hit(&[i1, i2]) == None);
+        assert!(hit(vec![i1, i2]) == None);
     }
 
     #[test]
     fn test_smallest_intersection_4() {
         let i1 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(Material::default())),
             distance: 5.0,
         };
         let i2 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(Material::default())),
             distance: 7.0,
         };
         let i3 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(Material::default())),
             distance: -3.0,
         };
         let i4 = Intersection {
-            object: &Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(Material::default())),
             distance: 2.0,
         };
-        assert_eq!(hit(&[i1, i2, i3, i4]).unwrap(), i4);
+        assert_eq!(hit(vec![i1, i2, i3, i4]).unwrap(), i4);
     }
 
     #[test]
@@ -83,8 +82,10 @@ mod tests {
         };
         let sphere = Object::Sphere(Sphere::new(Material::default()));
         let i = sphere.intersect(&ray);
-        assert_eq!(i.unwrap().0, 4.0);
-        assert_eq!(i.unwrap().1, 6.0);
+        assert!(Option::is_some(&i));
+        let u = i.unwrap();
+        assert_eq!(u[0].distance, 4.0);
+        assert_eq!(u[1].distance, 6.0);
     }
 
     #[test]
@@ -122,8 +123,10 @@ mod tests {
         };
         let sphere = Object::Sphere(Sphere::new(Material::default()));
         let i = sphere.intersect(&ray);
-        assert_eq!(i.unwrap().0, 5.0);
-        assert_eq!(i.unwrap().1, 5.0);
+        assert!(Option::is_some(&i));
+        let u = i.unwrap();
+        assert_eq!(u[0].distance, 5.0);
+        assert_eq!(u[1].distance, 5.0);
     }
 
     #[test]
@@ -142,8 +145,10 @@ mod tests {
         };
         let sphere = Object::Sphere(Sphere::new(Material::default()));
         let i = sphere.intersect(&ray);
-        assert_eq!(i.unwrap().0, -1.0);
-        assert_eq!(i.unwrap().1, 1.0);
+        assert!(Option::is_some(&i));
+        let u = i.unwrap();
+        assert_eq!(u[0].distance, -1.0);
+        assert_eq!(u[1].distance, 1.0);
     }
 
     #[test]
@@ -185,12 +190,12 @@ mod tests {
         };
         let sphere = Object::Sphere(Sphere::new(Material::default()));
         let i = Intersection {
-            object: &sphere,
+            object: sphere,
             distance: 4.0,
         };
         let precomputed = prepare_computations(&i, &ray);
         assert_eq!(precomputed.distance, i.distance);
-        assert_eq!(&precomputed.object, i.object);
+        assert_eq!(precomputed.object, i.object);
         assert_eq!(
             precomputed.point,
             Point {
@@ -233,7 +238,7 @@ mod tests {
         };
         let sphere = Object::Sphere(Sphere::new(Material::default()));
         let i = Intersection {
-            object: &sphere,
+            object: sphere,
             distance: 4.0,
         };
         let precomputed = prepare_computations(&i, &ray);
@@ -256,7 +261,7 @@ mod tests {
         };
         let sphere = Object::Sphere(Sphere::new(Material::default()));
         let i = Intersection {
-            object: &sphere,
+            object: sphere,
             distance: 1.0,
         };
         let precomputed = prepare_computations(&i, &ray);
@@ -304,7 +309,7 @@ mod tests {
         };
         let shape = world.objects[0];
         let i = Intersection {
-            object: &shape,
+            object: shape,
             distance: 4.0,
         };
         let comps = prepare_computations(&i, &ray);
@@ -328,7 +333,6 @@ mod tests {
                 y: 0.25,
                 z: 0.0,
             },
-            intensity: 1.0,
             color: Color {
                 red: 1.0,
                 green: 1.0,
@@ -349,7 +353,7 @@ mod tests {
         };
         let shape = world.objects[1];
         let i = Intersection {
-            object: &shape,
+            object: shape,
             distance: 0.5,
         };
         let comps = prepare_computations(&i, &ray);
@@ -362,6 +366,77 @@ mod tests {
                 blue: 0.9049845,
             }
         );
+    }
+
+    #[test]
+    fn test_shade_hit_in_shadow() {
+        let lights = vec![Light::PointLight(PointLight {
+            position: Point {
+                x: 0.0,
+                y: 0.0,
+                z: -10.0,
+            },
+            color: Color::default(),
+        })];
+        let sphere1 = Object::Sphere(Sphere::new(Material::default()));
+        let mut sphere2 = Object::Sphere(Sphere::new(Material::default()));
+        sphere2.set_transform(Matrix44::translation(0.0, 0.0, 10.0));
+        let world = World {
+            objects: vec![sphere1, sphere2],
+            lights,
+        };
+        let r = Ray {
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: 5.0,
+            },
+            direction: Vector3 {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
+        };
+        let i = Intersection {
+            object: sphere2,
+            distance: 4.0,
+        };
+        let comps = prepare_computations(&i, &r);
+        let c = shade_hit(&world, &comps);
+        assert_eq!(
+            c,
+            Color {
+                red: 0.1,
+                green: 0.1,
+                blue: 0.1
+            }
+        )
+    }
+
+    #[test]
+    fn test_hit_point_offset() {
+        let ray = Ray {
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: -5.0,
+            },
+            direction: Vector3 {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
+        };
+        let mut s = Object::Sphere(Sphere::new(Material::default()));
+        s.set_transform(Matrix44::translation(0.0, 0.0, 1.0));
+
+        let i = Intersection {
+            object: s,
+            distance: 5.0,
+        };
+        let comps = prepare_computations(&i, &ray);
+        assert!(comps.over_point.z < -std::f64::EPSILON / 2.0);
+        assert!(comps.point.z > comps.over_point.z);
     }
 
     #[test]
@@ -399,7 +474,6 @@ mod tests {
                 y: 0.25,
                 z: 0.0,
             },
-            intensity: 1.0,
             color: Color {
                 red: 1.0,
                 green: 1.0,
@@ -420,7 +494,7 @@ mod tests {
         };
         let shape = world.objects[1];
         let intersection = Intersection {
-            object: &shape,
+            object: shape,
             distance: 0.5,
         };
         let comps = prepare_computations(&intersection, &ray);
@@ -437,7 +511,7 @@ mod tests {
 
     #[test]
     fn test_color_ray_miss() {
-        let mut world = World::default();
+        let world = World::default();
         let ray = Ray {
             origin: Point {
                 x: 0.0,

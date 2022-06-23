@@ -23,10 +23,10 @@ use crate::intersection::*;
 use crate::light::*;
 use crate::material::*;
 use crate::matrix::*;
+use crate::objects::plane::*;
 use crate::objects::sphere::*;
 use crate::objects::*;
 use crate::point::*;
-use crate::ray::*;
 use crate::vector3::*;
 use crate::world::*;
 
@@ -130,32 +130,63 @@ fn draw(frame: &mut [u8]) {
             blue: 0.1,
         },
         diffuse: 0.7,
-        specular: 0.3,
+        specular: 0.8,
         ..Material::default()
     }));
     leftsphere.set_transform(Matrix44::scaling(0.33, 0.33, 0.33).translate(-1.5, 0.33, -0.75));
+    let mut plane = Object::Plane(Plane::new(Material {
+        specular: 0.0,
+        diffuse: 0.5,
+        ambient: 0.01,
+        color: Color {
+            red: 0.0,
+            green: 0.9,
+            blue: 0.9,
+        },
+        ..Material::default()
+    }));
+    // plane.set_transform(
+    //     Matrix44::rotation_x(std::f64::consts::FRAC_PI_2)
+    //         .rotate_y(-std::f64::consts::FRAC_PI_4)
+    //         .translate(0.0, 0.0, 5.0),
+    // );
+
     let world = World {
         objects: vec![
-            right_wall,
-            left_wall,
-            floor,
+            // right_wall,
+            // left_wall,
+            // floor,
+            plane,
             middlesphere,
             rightsphere,
             leftsphere,
         ],
-        lights: vec![Light::PointLight(PointLight {
-            position: Point {
-                x: -10.0,
-                y: 10.0,
-                z: -10.0,
-            },
-            intensity: 1.0,
-            color: Color {
-                red: 1.0,
-                green: 1.0,
-                blue: 1.0,
-            },
-        })],
+        lights: vec![
+            Light::PointLight(PointLight {
+                position: Point {
+                    x: -10.0,
+                    y: 10.0,
+                    z: -10.0,
+                },
+                color: Color {
+                    red: 1.0,
+                    green: 1.0,
+                    blue: 1.0,
+                },
+            }),
+            // Light::PointLight(PointLight {
+            //     position: Point {
+            //         x: 10.0,
+            //         y: 10.0,
+            //         z: -10.0,
+            //     },
+            //     color: Color {
+            //         red: 1.0,
+            //         green: 0.0,
+            //         blue: 1.0,
+            //     },
+            // }),
+        ],
     };
     let mut cam = Camera::new(WIDTH, HEIGHT, std::f64::consts::PI / 3.0);
     cam.transform = view_transform(

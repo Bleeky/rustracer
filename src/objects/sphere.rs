@@ -1,5 +1,7 @@
+use crate::intersection::*;
 use crate::material::*;
 use crate::matrix::*;
+use crate::objects::*;
 use crate::point::Point;
 use crate::ray::*;
 use crate::vector3::Vector3;
@@ -43,7 +45,7 @@ impl Sphere {
         world_normal.normalize()
     }
 
-    pub fn intersect<'a>(&self, ray: &Ray) -> Option<(f64, f64)> {
+    pub fn intersect(&self, ray: &Ray) -> Option<Vec<Intersection>> {
         let ray2 = ray.transform(self.transform.invert());
         let sphere_to_ray = ray2.origin
             - Point {
@@ -58,7 +60,16 @@ impl Sphere {
         if discriminant >= 0.0 {
             let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
             let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
-            return Some((t1, t2));
+            return Some(vec![
+                Intersection {
+                    distance: t1,
+                    object: Object::Sphere(*self),
+                },
+                Intersection {
+                    distance: t2,
+                    object: Object::Sphere(*self),
+                },
+            ]);
         }
         None
     }
@@ -66,7 +77,9 @@ impl Sphere {
 
 impl PartialEq for Sphere {
     fn eq(&self, other: &Self) -> bool {
-        self.center == other.center && self.radius == other.radius
+        self.center == other.center
+            && self.radius == other.radius
+            && self.transform == other.transform
     }
 }
 

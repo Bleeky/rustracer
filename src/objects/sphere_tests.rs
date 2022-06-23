@@ -1,7 +1,6 @@
 #[cfg(test)]
 mod tests {
     use crate::objects::sphere::*;
-    use crate::objects::*;
     use crate::point::Point;
     use crate::vector3::Vector3;
     #[test]
@@ -52,8 +51,10 @@ mod tests {
         let t = Matrix44::scaling(2.0, 2.0, 2.0);
         s.set_transform(t);
         let i = s.intersect(&r);
-        assert_eq!(i.unwrap().0, 3.0);
-        assert_eq!(i.unwrap().1, 7.0);
+        assert!(Option::is_some(&i));
+        let u = i.unwrap();
+        assert_eq!(u[0].distance, 3.0);
+        assert_eq!(u[1].distance, 7.0);
     }
 
     #[test]
