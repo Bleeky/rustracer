@@ -13,7 +13,7 @@ pub struct World {
 
 impl Default for World {
     fn default() -> Self {
-        let mut sphere1 = Sphere::new(Material {
+        let sphere1 = Sphere::new(Material {
             color: Color {
                 red: 0.8,
                 green: 1.0,

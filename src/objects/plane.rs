@@ -16,11 +16,7 @@ pub struct Plane {
 impl Plane {
     pub fn new(material: Material) -> Self {
         Plane {
-            origin: Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
+            origin: Point::zero(),
             material,
             transform: Matrix44::identity(),
         }
@@ -30,7 +26,7 @@ impl Plane {
         self.transform = transform;
     }
 
-    pub fn normal_at(&self, point: &Point) -> Vector3 {
+    pub fn normal_at(&self, _point: &Point) -> Vector3 {
         let object_normal = Vector3 {
             x: 0.0,
             y: 1.0,

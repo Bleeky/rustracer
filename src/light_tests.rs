@@ -2,7 +2,6 @@
 mod tests {
     use crate::light::*;
     use crate::point::*;
-    use crate::world::*;
 
     #[test]
     fn test_lighting_1() {
@@ -27,11 +26,7 @@ mod tests {
         let res = lighting(
             &Material::default(),
             &plight,
-            &Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
+            &Point::zero(),
             &eyev,
             &normalv,
             false,
@@ -69,11 +64,7 @@ mod tests {
         let res = lighting(
             &Material::default(),
             &plight,
-            &Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
+            &Point::zero(),
             &eyev,
             &normalv,
             false,
@@ -111,11 +102,7 @@ mod tests {
         let res = lighting(
             &Material::default(),
             &plight,
-            &Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
+            &Point::zero(),
             &eyev,
             &normalv,
             false,
@@ -154,11 +141,7 @@ mod tests {
         let result = lighting(
             &Material::default(),
             &light,
-            &Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
+            &Point::zero(),
             &eyev,
             &normalv,
             in_shadow,

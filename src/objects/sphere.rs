@@ -17,11 +17,7 @@ pub struct Sphere {
 impl Sphere {
     pub fn new(material: Material) -> Self {
         Sphere {
-            center: Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
+            center: Point::zero(),
             radius: 1.0,
             material,
             transform: Matrix44::identity(),
@@ -34,25 +30,14 @@ impl Sphere {
 
     pub fn normal_at(&self, point: &Point) -> Vector3 {
         let object_point = self.transform.invert() * *point;
-        let object_normal = object_point
-            - Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            };
+        let object_normal = object_point - Point::zero();
         let world_normal = self.transform.invert().transpose() * object_normal;
-        // let world_normal = self.transform.invert() * object_normal;
         world_normal.normalize()
     }
 
     pub fn intersect(&self, ray: &Ray) -> Option<Vec<Intersection>> {
         let ray2 = ray.transform(self.transform.invert());
-        let sphere_to_ray = ray2.origin
-            - Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            };
+        let sphere_to_ray = ray2.origin - Point::zero();
         let a = ray2.direction.dot(&ray2.direction);
         let b = 2.0 * ray2.direction.dot(&sphere_to_ray);
         let c = sphere_to_ray.dot(&sphere_to_ray) - 1.0;

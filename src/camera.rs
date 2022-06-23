@@ -3,10 +3,7 @@ use crate::point::*;
 use crate::ray::*;
 
 pub struct Camera {
-    hsize: u32,
-    vsize: u32,
     pixel_size: f64,
-    field_of_view: f64,
     pub transform: Matrix44,
     half_width: f64,
     half_height: f64,
@@ -27,12 +24,9 @@ impl Camera {
         }
         let pixel_size = (half_width * 2.0) / hsize as f64;
         Camera {
-            hsize,
-            vsize,
             pixel_size,
             half_width,
             half_height,
-            field_of_view,
             transform: Matrix44::identity(),
         }
     }
@@ -58,6 +52,7 @@ impl Camera {
         Ray { origin, direction }
     }
 }
+
 #[cfg(test)]
 #[path = "./camera_tests.rs"]
 mod camera_tests;

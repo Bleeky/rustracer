@@ -7,11 +7,7 @@ mod tests {
     #[test]
     fn test_plane_normal() {
         let p = Plane::new(Material::default());
-        let n1 = p.normal_at(&Point {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        });
+        let n1 = p.normal_at(&Point::zero());
         let n2 = p.normal_at(&Point {
             x: 10.0,
             y: 0.0,
@@ -70,11 +66,7 @@ mod tests {
     fn test_coplanar_ray_intersect() {
         let p = Plane::new(Material::default());
         let r = Ray {
-            origin: Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
+            origin: Point::zero(),
             direction: Vector3 {
                 x: 0.0,
                 y: 0.0,

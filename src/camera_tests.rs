@@ -22,14 +22,7 @@ mod tests {
     fn test_ray_through_canvas_center() {
         let c = Camera::new(201, 101, std::f64::consts::PI / 2.0);
         let r = c.ray_for_pixel(100, 50);
-        assert_eq!(
-            r.origin,
-            Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            }
-        );
+        assert_eq!(r.origin, Point::zero());
         assert_eq!(
             r.direction,
             Vector3 {
@@ -67,14 +60,7 @@ mod tests {
     fn test_ray_camera_through_corner() {
         let c = Camera::new(201, 101, std::f64::consts::FRAC_PI_2);
         let r = c.ray_for_pixel(0, 0);
-        assert_eq!(
-            r.origin,
-            Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            }
-        );
+        assert_eq!(r.origin, Point::zero());
         assert_eq!(
             r.direction,
             Vector3 {
@@ -95,11 +81,7 @@ mod tests {
                 y: 0.0,
                 z: -5.0,
             },
-            Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
+            Point::zero(),
             Vector3 {
                 x: 0.0,
                 y: 1.0,

@@ -17,7 +17,6 @@ pub enum Object {
 }
 
 impl Object {
-    // pub fn intersect(&self, ray: &Ray) -> Option<(f64, f64)> {
     pub fn intersect(&self, ray: &Ray) -> Option<Vec<Intersection>> {
         match *self {
             Object::Sphere(ref s) => s.intersect(ray),

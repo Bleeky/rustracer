@@ -1,7 +1,5 @@
 #[cfg(test)]
 mod tests {
-    use crate::matrix::*;
-    use crate::point::*;
     use crate::vector3::*;
 
     #[test]
