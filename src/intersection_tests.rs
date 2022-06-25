@@ -312,7 +312,7 @@ mod tests {
             distance: 4.0,
         };
         let comps = prepare_computations(&i, &ray);
-        let c = shade_hit(&world, &comps);
+        let c = shade_hit(&world, &comps, &i.object);
         assert_eq!(
             c,
             Color {
@@ -356,7 +356,7 @@ mod tests {
             distance: 0.5,
         };
         let comps = prepare_computations(&i, &ray);
-        let c = shade_hit(&world, &comps);
+        let c = shade_hit(&world, &comps, &i.object);
         assert_eq!(
             c,
             Color {
@@ -401,7 +401,7 @@ mod tests {
             distance: 4.0,
         };
         let comps = prepare_computations(&i, &r);
-        let c = shade_hit(&world, &comps);
+        let c = shade_hit(&world, &comps, &i.object);
         assert_eq!(
             c,
             Color {
@@ -497,7 +497,7 @@ mod tests {
             distance: 0.5,
         };
         let comps = prepare_computations(&intersection, &ray);
-        let color = shade_hit(&world, &comps);
+        let color = shade_hit(&world, &comps, &intersection.object);
         assert_eq!(
             color,
             Color {

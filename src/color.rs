@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul};
+use std::ops::{Add, Mul, Sub};
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Color {
     pub red: f32,
@@ -14,15 +14,59 @@ impl Color {
             blue: 0.0,
         }
     }
-}
 
-impl Default for Color {
-    fn default() -> Self {
+    pub fn white() -> Self {
         Color {
             red: 1.0,
             green: 1.0,
             blue: 1.0,
         }
+    }
+
+    pub fn yellow() -> Self {
+        Color {
+            red: 1.0,
+            green: 1.0,
+            blue: 0.0,
+        }
+    }
+
+    pub fn green() -> Self {
+        Color {
+            red: 0.0,
+            green: 1.0,
+            blue: 0.0,
+        }
+    }
+
+    pub fn purple() -> Self {
+        Color {
+            red: 1.0,
+            green: 0.0,
+            blue: 1.0,
+        }
+    }
+
+    pub fn cyan() -> Self {
+        Color {
+            red: 0.0,
+            green: 1.0,
+            blue: 1.0,
+        }
+    }
+
+    pub fn red() -> Self {
+        Color {
+            red: 1.0,
+            green: 0.0,
+            blue: 0.0,
+        }
+    }
+}
+
+impl Default for Color {
+    fn default() -> Self {
+        Color::white()
     }
 }
 
@@ -50,6 +94,18 @@ impl Mul<f32> for Color {
     }
 }
 
+impl Sub<f32> for Color {
+    type Output = Color;
+
+    fn sub(self, other: f32) -> Color {
+        Color {
+            red: self.red - other,
+            blue: self.blue - other,
+            green: self.green - other,
+        }
+    }
+}
+
 impl Mul<Color> for f32 {
     type Output = Color;
 
@@ -66,6 +122,18 @@ impl Add<Color> for Color {
             red: self.red + other.red,
             blue: self.blue + other.blue,
             green: self.green + other.green,
+        }
+    }
+}
+
+impl Sub<Color> for Color {
+    type Output = Color;
+
+    fn sub(self, other: Color) -> Color {
+        Color {
+            red: self.red - other.red,
+            blue: self.blue - other.blue,
+            green: self.green - other.green,
         }
     }
 }

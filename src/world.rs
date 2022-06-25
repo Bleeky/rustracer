@@ -24,11 +24,7 @@ impl Default for World {
             ..Material::default()
         });
         let mut sphere2 = Sphere::new(Material {
-            color: Color {
-                red: 1.0,
-                green: 1.0,
-                blue: 1.0,
-            },
+            color: Color::white(),
             ..Material::default()
         });
         sphere2.set_transform(Matrix44::scaling(0.5, 0.5, 0.5));
@@ -40,11 +36,7 @@ impl Default for World {
                     y: 10.0,
                     z: -10.0,
                 },
-                color: Color {
-                    red: 1.0,
-                    green: 1.0,
-                    blue: 1.0,
-                },
+                color: Color::white(),
             })],
         }
     }

@@ -1,4 +1,4 @@
-use crate::color::*;
+use crate::{color::*, patterns::Pattern};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Material {
@@ -7,6 +7,7 @@ pub struct Material {
     pub diffuse: f32,
     pub specular: f32,
     pub shininess: f32,
+    pub pattern: Option<Pattern>,
 }
 
 impl Default for Material {
@@ -17,6 +18,7 @@ impl Default for Material {
             diffuse: 0.9,
             specular: 0.9,
             shininess: 200.0,
+            pattern: None,
         }
     }
 }

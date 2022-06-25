@@ -1,7 +1,7 @@
 use crate::color::*;
-use crate::intersection::hit;
-use crate::intersection::intersect_world;
+use crate::intersection::*;
 use crate::material::*;
+use crate::objects::*;
 use crate::point::Point;
 use crate::ray::*;
 use crate::vector3::*;
@@ -32,15 +32,22 @@ impl Light {
 
 pub fn lighting(
     material: &Material,
+    object: &Object,
     light: &Light,
     hit_point: &Point,
     eye_vector: &Vector3,
     normal_vector: &Vector3,
     in_shadow: bool,
 ) -> Color {
+    let mut material_color = material.color;
     let diffuse: Color;
     let specular: Color;
-    let effective_color = material.color * light.color();
+
+    match material.pattern {
+        Some(x) => material_color = x.pattern_at_object(hit_point, object),
+        None => {}
+    }
+    let effective_color = material_color * light.color();
     let lightv = (light.position() - *hit_point).normalize();
     let ambient = effective_color * material.ambient;
     let light_dot_normal = lightv.dot(normal_vector);
@@ -83,27 +90,6 @@ pub fn is_shadowed(world: &World, point: &Point, light: &Light) -> bool {
         None => false,
     }
 }
-// pub fn is_shadowed(world: &World, point: &Point) -> bool {
-//     world.lights.iter().any(|x| {
-//         let v = x.position() - *point;
-//         let distance = v.length();
-//         let direction = v.normalize();
-//         let ray = Ray {
-//             origin: point.clone(),
-//             direction,
-//         };
-//         let intersections = intersect_world(&ray, world);
-//         match hit(&intersections) {
-//             Some(x) => {
-//                 if x.distance < distance {
-//                     return true;
-//                 }
-//                 false
-//             }
-//             None => false,
-//         }
-//     })
-// }
 
 #[cfg(test)]
 #[path = "./light_tests.rs"]

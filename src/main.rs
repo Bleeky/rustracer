@@ -1,3 +1,4 @@
+use patterns::Pattern;
 // use image::{DynamicImage, GenericImage};
 use pixels::{Error, Pixels, SurfaceTexture};
 use winit::dpi::LogicalSize;
@@ -12,6 +13,7 @@ mod light;
 mod material;
 mod matrix;
 mod objects;
+mod patterns;
 mod point;
 mod ray;
 mod vector3;
@@ -26,6 +28,9 @@ use crate::matrix::*;
 use crate::objects::plane::*;
 use crate::objects::sphere::*;
 use crate::objects::*;
+use crate::patterns::checker::*;
+use crate::patterns::ring::*;
+use crate::patterns::stripe::*;
 use crate::point::*;
 use crate::vector3::*;
 use crate::world::*;
@@ -109,6 +114,10 @@ fn draw(frame: &mut [u8]) {
         },
         diffuse: 0.7,
         specular: 0.3,
+        pattern: Some(
+            Pattern::Checker(Checker::new(Color::cyan(), Color::cyan() - 0.2))
+                .set_transform(Matrix44::scaling(0.5, 0.5, 0.5)),
+        ),
         ..Material::default()
     }));
     middlesphere.set_transform(Matrix44::translation(-0.5, 1.0, 0.5));
@@ -120,6 +129,11 @@ fn draw(frame: &mut [u8]) {
         },
         diffuse: 0.7,
         specular: 0.3,
+        pattern: Some(
+            Pattern::Ring(Ring::new(Color::yellow(), Color::green())).set_transform(
+                Matrix44::rotation_x(std::f64::consts::FRAC_PI_2).scale(0.1, 0.1, 0.1),
+            ),
+        ),
         ..Material::default()
     }));
     rightsphere.set_transform(Matrix44::scaling(0.5, 0.5, 0.5).translate(1.5, 0.5, -0.5));
@@ -143,6 +157,10 @@ fn draw(frame: &mut [u8]) {
             green: 0.9,
             blue: 0.9,
         },
+        pattern: Some(Pattern::Stripe(Stripe::new(
+            Color::white(),
+            Color::purple(),
+        ))),
         ..Material::default()
     }));
     // plane.set_transform(
@@ -168,11 +186,7 @@ fn draw(frame: &mut [u8]) {
                     y: 10.0,
                     z: -10.0,
                 },
-                color: Color {
-                    red: 1.0,
-                    green: 1.0,
-                    blue: 1.0,
-                },
+                color: Color::white(),
             }),
             // Light::PointLight(PointLight {
             //     position: Point {

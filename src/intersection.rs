@@ -16,8 +16,8 @@ pub fn intersect_world<'a>(ray: &Ray, world: &'a World) -> Vec<Intersection> {
     let mut t: Vec<Intersection> = world
         .objects
         .iter()
-        .filter_map(|s| s.intersect(ray))
-        .flat_map(|x| x)
+        .filter_map(|object| object.intersect(ray))
+        .flat_map(|intersections| intersections)
         .collect();
     t.sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
     t
@@ -59,33 +59,31 @@ pub fn hit(intersections: Vec<Intersection>) -> Option<Intersection> {
     intersections
         .iter()
         .cloned()
-        .filter(|x| x.distance.is_sign_positive())
+        .filter(|intersection| intersection.distance.is_sign_positive())
         .min_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap())
 }
 
-pub fn shade_hit(world: &World, computations: &Computations) -> Color {
-    world.lights.iter().fold(
-        Color {
-            red: 0.0,
-            green: 0.0,
-            blue: 0.0,
-        },
-        |acc, light| {
-            acc + lighting(
-                computations.object.material(),
-                light,
-                &computations.point,
-                &computations.eyev,
-                &computations.normalv,
-                is_shadowed(world, &computations.over_point, light),
-            )
-        },
-    )
+pub fn shade_hit(world: &World, computations: &Computations, hit_object: &Object) -> Color {
+    world.lights.iter().fold(Color::black(), |sum, light| {
+        sum + lighting(
+            computations.object.material(),
+            hit_object,
+            light,
+            &computations.point,
+            &computations.eyev,
+            &computations.normalv,
+            is_shadowed(world, &computations.over_point, light),
+        )
+    })
 }
 
 pub fn color_at(world: &World, ray: &Ray) -> Color {
     match hit(intersect_world(ray, world)) {
-        Some(x) => shade_hit(world, &prepare_computations(&x, ray)),
+        Some(intersection) => shade_hit(
+            world,
+            &prepare_computations(&intersection, ray),
+            &intersection.object,
+        ),
         None => Color {
             red: 0.0,
             green: 0.0,

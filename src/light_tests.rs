@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod tests {
     use crate::light::*;
+    use crate::objects::sphere::*;
+    use crate::patterns::stripe::*;
+    use crate::patterns::*;
     use crate::point::*;
 
     #[test]
@@ -23,8 +26,10 @@ mod tests {
             },
             color: Color::default(),
         });
+        let sphere = Object::Sphere(Sphere::new(Material::default()));
         let res = lighting(
             &Material::default(),
+            &sphere,
             &plight,
             &Point::zero(),
             &eyev,
@@ -61,8 +66,10 @@ mod tests {
             },
             color: Color::default(),
         });
+        let sphere = Object::Sphere(Sphere::new(Material::default()));
         let res = lighting(
             &Material::default(),
+            &sphere,
             &plight,
             &Point::zero(),
             &eyev,
@@ -99,8 +106,10 @@ mod tests {
             },
             color: Color::default(),
         });
+        let sphere = Object::Sphere(Sphere::new(Material::default()));
         let res = lighting(
             &Material::default(),
+            &sphere,
             &plight,
             &Point::zero(),
             &eyev,
@@ -138,8 +147,10 @@ mod tests {
             color: Color::default(),
         });
         let in_shadow = true;
+        let sphere = Object::Sphere(Sphere::new(Material::default()));
         let result = lighting(
             &Material::default(),
+            &sphere,
             &light,
             &Point::zero(),
             &eyev,
@@ -198,5 +209,61 @@ mod tests {
             z: -2.0,
         };
         assert_eq!(is_shadowed(&world, &p, &world.lights[0]), false);
+    }
+
+    #[test]
+    pub fn lighting_with_pattern() {
+        let mut m = Material::default();
+        m.ambient = 1.0;
+        m.diffuse = 0.0;
+        m.specular = 0.0;
+        m.pattern = Some(Pattern::Stripe(Stripe::new(Color::white(), Color::black())));
+        let eyev = Vector3 {
+            x: 0.0,
+            y: 0.0,
+            z: -1.0,
+        };
+        let normalv = Vector3 {
+            x: 0.0,
+            y: 0.0,
+            z: -1.0,
+        };
+        let light = Light::PointLight(PointLight {
+            position: Point {
+                x: 0.0,
+                y: 0.0,
+                z: -10.0,
+            },
+            color: Color::white(),
+        });
+        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let c1 = lighting(
+            &m,
+            &sphere,
+            &light,
+            &Point {
+                x: 0.9,
+                y: 0.0,
+                z: 0.0,
+            },
+            &eyev,
+            &normalv,
+            false,
+        );
+        let c2 = lighting(
+            &m,
+            &sphere,
+            &light,
+            &Point {
+                x: 1.1,
+                y: 0.0,
+                z: 0.0,
+            },
+            &eyev,
+            &normalv,
+            false,
+        );
+        assert_eq!(c1, Color::white());
+        assert_eq!(c2, Color::black());
     }
 }
