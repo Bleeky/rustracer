@@ -106,6 +106,18 @@ impl Sub<f32> for Color {
     }
 }
 
+impl Add<f32> for Color {
+    type Output = Color;
+
+    fn add(self, other: f32) -> Color {
+        Color {
+            red: self.red + other,
+            blue: self.blue + other,
+            green: self.green + other,
+        }
+    }
+}
+
 impl Mul<Color> for f32 {
     type Output = Color;
 

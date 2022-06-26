@@ -29,7 +29,10 @@ use crate::objects::plane::*;
 use crate::objects::sphere::*;
 use crate::objects::*;
 use crate::patterns::checker::*;
+use crate::patterns::gradient::*;
+use crate::patterns::radial_gradient::*;
 use crate::patterns::ring::*;
+use crate::patterns::solid_color::*;
 use crate::patterns::stripe::*;
 use crate::point::*;
 use crate::vector3::*;
@@ -73,40 +76,7 @@ fn main() -> Result<(), Error> {
 }
 
 fn draw(frame: &mut [u8]) {
-    let floor_material = Material {
-        specular: 0.0,
-        color: Color {
-            red: 1.0,
-            green: 0.9,
-            blue: 0.9,
-        },
-        ..Material::default()
-    };
-    let mut floor = Object::Sphere(Sphere::new(floor_material));
-    floor.set_transform(Matrix44::scaling(10.0, 0.01, 10.0));
-    let mut right_wall = Object::Sphere(Sphere::new(floor_material));
-    right_wall.set_transform(
-        Matrix44::scaling(10.0, 0.01, 10.0)
-            .rotate_x(std::f64::consts::FRAC_PI_2)
-            .rotate_y(std::f64::consts::FRAC_PI_4)
-            .translate(0.0, 0.0, 5.0),
-    );
-    let mut left_wall = Object::Sphere(Sphere::new(Material {
-        specular: 0.0,
-        color: Color {
-            red: 0.0,
-            green: 0.9,
-            blue: 0.9,
-        },
-        ..Material::default()
-    }));
-    left_wall.set_transform(
-        Matrix44::scaling(10.0, 0.01, 10.0)
-            .rotate_x(std::f64::consts::FRAC_PI_2)
-            .rotate_y(-std::f64::consts::FRAC_PI_4)
-            .translate(0.0, 0.0, 5.0),
-    );
-    let mut middlesphere = Object::Sphere(Sphere::new(Material {
+    let mut middlesphere = Object::Sphere(Sphere::new(&Material {
         color: Color {
             red: 0.1,
             green: 1.0,
@@ -115,13 +85,16 @@ fn draw(frame: &mut [u8]) {
         diffuse: 0.7,
         specular: 0.3,
         pattern: Some(
-            Pattern::Checker(Checker::new(Color::cyan(), Color::cyan() - 0.2))
-                .set_transform(Matrix44::scaling(0.5, 0.5, 0.5)),
+            Pattern::Checker(Checker::new(
+                Pattern::SolidColor(SolidColor::new(Color::cyan())),
+                Pattern::SolidColor(SolidColor::new(Color::cyan() - 0.2)),
+            ))
+            .set_transform(Matrix44::scaling(0.5, 0.5, 0.5)),
         ),
         ..Material::default()
     }));
     middlesphere.set_transform(Matrix44::translation(-0.5, 1.0, 0.5));
-    let mut rightsphere = Object::Sphere(Sphere::new(Material {
+    let mut rightsphere = Object::Sphere(Sphere::new(&Material {
         color: Color {
             red: 0.5,
             green: 1.0,
@@ -130,14 +103,16 @@ fn draw(frame: &mut [u8]) {
         diffuse: 0.7,
         specular: 0.3,
         pattern: Some(
-            Pattern::Ring(Ring::new(Color::yellow(), Color::green())).set_transform(
-                Matrix44::rotation_x(std::f64::consts::FRAC_PI_2).scale(0.1, 0.1, 0.1),
-            ),
+            Pattern::Ring(Ring::new(
+                Pattern::SolidColor(SolidColor::new(Color::yellow())),
+                Pattern::SolidColor(SolidColor::new(Color::green())),
+            ))
+            .set_transform(Matrix44::rotation_x(std::f64::consts::FRAC_PI_2).scale(0.1, 0.1, 0.1)),
         ),
         ..Material::default()
     }));
     rightsphere.set_transform(Matrix44::scaling(0.5, 0.5, 0.5).translate(1.5, 0.5, -0.5));
-    let mut leftsphere = Object::Sphere(Sphere::new(Material {
+    let mut leftsphere = Object::Sphere(Sphere::new(&Material {
         color: Color {
             red: 1.0,
             green: 0.8,
@@ -145,10 +120,17 @@ fn draw(frame: &mut [u8]) {
         },
         diffuse: 0.7,
         specular: 0.8,
+        pattern: Some(
+            Pattern::RadialGradient(RadialGradient::new(
+                Pattern::SolidColor(SolidColor::new(Color::green())),
+                Pattern::SolidColor(SolidColor::new(Color::green() - 0.9)),
+            ))
+            .set_transform(Matrix44::rotation_x(std::f64::consts::FRAC_PI_2).scale(0.3, 0.3, 0.3)),
+        ),
         ..Material::default()
     }));
     leftsphere.set_transform(Matrix44::scaling(0.33, 0.33, 0.33).translate(-1.5, 0.33, -0.75));
-    let mut plane = Object::Plane(Plane::new(Material {
+    let plane = Object::Plane(Plane::new(Material {
         specular: 0.0,
         diffuse: 0.5,
         ambient: 0.01,
@@ -157,28 +139,23 @@ fn draw(frame: &mut [u8]) {
             green: 0.9,
             blue: 0.9,
         },
-        pattern: Some(Pattern::Stripe(Stripe::new(
-            Color::white(),
-            Color::purple(),
+        pattern: Some(Pattern::Checker(Checker::new(
+            Pattern::Stripe(Stripe::new(
+                Pattern::SolidColor(SolidColor::new(Color::green())),
+                Pattern::SolidColor(SolidColor::new(Color::green() + 0.08)),
+            ))
+            .set_transform(Matrix44::scaling(0.2, 0.2, 0.2).rotate_y(std::f64::consts::FRAC_PI_4)),
+            Pattern::Stripe(Stripe::new(
+                Pattern::SolidColor(SolidColor::new(Color::yellow())),
+                Pattern::SolidColor(SolidColor::new(Color::yellow() - 0.2)),
+            ))
+            .set_transform(Matrix44::scaling(0.2, 0.2, 0.2).rotate_y(-std::f64::consts::FRAC_PI_4)),
         ))),
         ..Material::default()
     }));
-    // plane.set_transform(
-    //     Matrix44::rotation_x(std::f64::consts::FRAC_PI_2)
-    //         .rotate_y(-std::f64::consts::FRAC_PI_4)
-    //         .translate(0.0, 0.0, 5.0),
-    // );
 
     let world = World {
-        objects: vec![
-            // right_wall,
-            // left_wall,
-            // floor,
-            plane,
-            middlesphere,
-            rightsphere,
-            leftsphere,
-        ],
+        objects: vec![plane, middlesphere, rightsphere, leftsphere],
         lights: vec![
             Light::PointLight(PointLight {
                 position: Point {
@@ -196,7 +173,7 @@ fn draw(frame: &mut [u8]) {
             //     },
             //     color: Color {
             //         red: 1.0,
-            //         green: 0.0,
+            //         green: 1.0,
             //         blue: 1.0,
             //     },
             // }),

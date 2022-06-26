@@ -6,7 +6,7 @@ use crate::point::Point;
 use crate::ray::*;
 use crate::vector3::Vector3;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Plane {
     pub origin: Point,
     pub material: Material,
@@ -44,7 +44,7 @@ impl Plane {
         let t = -ray2.origin.y / ray2.direction.y;
         Some(vec![Intersection {
             distance: t,
-            object: Object::Plane(*self),
+            object: Object::Plane(self.clone()),
         }])
     }
 }

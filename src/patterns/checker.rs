@@ -1,28 +1,35 @@
 use crate::color::*;
 use crate::matrix::*;
+use crate::patterns::*;
 use crate::point::*;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Checker {
-    pub color_a: Color,
-    pub color_b: Color,
+    pub pattern_a: Box<Pattern>,
+    pub pattern_b: Box<Pattern>,
     pub transform: Matrix44,
 }
 
 impl Checker {
-    pub fn new(color_a: Color, color_b: Color) -> Self {
+    pub fn new(pattern_a: Pattern, pattern_b: Pattern) -> Self {
         Checker {
-            color_a,
-            color_b,
+            pattern_a: Box::new(pattern_a),
+            pattern_b: Box::new(pattern_b),
             transform: Matrix44::identity(),
         }
     }
 
     pub fn pattern_at(&self, point: &Point) -> Color {
-        if (point.x.floor() + point.y.floor() + point.z.floor()) % 2.0 == 0.0 {
-            return self.color_a;
+        let pt = self.transform.invert() * *point;
+        if ((pt.x + std::f64::EPSILON).floor()
+            + (pt.y + std::f64::EPSILON).floor()
+            + (pt.z + std::f64::EPSILON).floor())
+            % 2.0
+            == 0.0
+        {
+            return self.pattern_a.pattern_at(&pt);
         }
-        self.color_b
+        self.pattern_b.pattern_at(&pt)
     }
 }
 

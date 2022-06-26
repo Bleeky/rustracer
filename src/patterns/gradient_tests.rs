@@ -4,7 +4,10 @@ mod tests {
 
     #[test]
     fn gradient_pattern_linear_interpolation() {
-        let g = Gradient::new(Color::white(), Color::black());
+        let g = Gradient::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        );
         assert_eq!(g.pattern_at(&Point::zero()), Color::white());
         assert_eq!(
             g.pattern_at(&Point {

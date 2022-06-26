@@ -1,28 +1,30 @@
 use crate::color::*;
 use crate::matrix::*;
+use crate::patterns::*;
 use crate::point::*;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Stripe {
-    pub color_a: Color,
-    pub color_b: Color,
+    pub pattern_a: Box<Pattern>,
+    pub pattern_b: Box<Pattern>,
     pub transform: Matrix44,
 }
 
 impl Stripe {
-    pub fn new(color_a: Color, color_b: Color) -> Self {
+    pub fn new(pattern_a: Pattern, pattern_b: Pattern) -> Self {
         Stripe {
-            color_a,
-            color_b,
+            pattern_a: Box::new(pattern_a),
+            pattern_b: Box::new(pattern_b),
             transform: Matrix44::identity(),
         }
     }
 
     pub fn pattern_at(&self, point: &Point) -> Color {
-        if point.x.floor() % 2.0 == 0.0 {
-            return self.color_a;
+        let pt = self.transform.invert() * *point;
+        if pt.x.floor() % 2.0 == 0.0 {
+            return self.pattern_a.pattern_at(&pt);
         }
-        self.color_b
+        self.pattern_b.pattern_at(&pt)
     }
 }
 

@@ -6,7 +6,7 @@ use crate::point::Point;
 use crate::ray::*;
 use crate::vector3::Vector3;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Sphere {
     pub center: Point,
     pub radius: f64,
@@ -15,11 +15,11 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(material: Material) -> Self {
+    pub fn new(material: &Material) -> Self {
         Sphere {
             center: Point::zero(),
             radius: 1.0,
-            material,
+            material: material.clone(),
             transform: Matrix44::identity(),
         }
     }
@@ -48,11 +48,11 @@ impl Sphere {
             return Some(vec![
                 Intersection {
                     distance: t1,
-                    object: Object::Sphere(*self),
+                    object: Object::Sphere(self.clone()),
                 },
                 Intersection {
                     distance: t2,
-                    object: Object::Sphere(*self),
+                    object: Object::Sphere(self.clone()),
                 },
             ]);
         }

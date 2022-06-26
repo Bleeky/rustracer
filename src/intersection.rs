@@ -6,7 +6,7 @@ use crate::ray::*;
 use crate::vector3::*;
 use crate::world::*;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Intersection {
     pub object: Object,
     pub distance: f64,

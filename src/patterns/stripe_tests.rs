@@ -3,17 +3,22 @@ mod tests {
     use crate::material::Material;
     use crate::objects::sphere::*;
     use crate::patterns::stripe::*;
-    use crate::patterns::*;
 
     #[test]
     fn create_stripe_pattern() {
-        let s = Stripe::new(Color::white(), Color::black());
-        assert_eq!(s.color_a, Color::white());
-        assert_eq!(s.color_b, Color::black());
+        let s = Stripe::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        );
+        assert_eq!(s.pattern_a.pattern_at(&Point::zero()), Color::white());
+        assert_eq!(s.pattern_b.pattern_at(&Point::zero()), Color::black());
     }
     #[test]
     fn create_stripe_pattern_constant_y() {
-        let s = Stripe::new(Color::white(), Color::black());
+        let s = Stripe::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        );
         assert_eq!(s.pattern_at(&Point::zero()), Color::white());
         assert_eq!(
             s.pattern_at(&Point {
@@ -34,7 +39,10 @@ mod tests {
     }
     #[test]
     fn create_stripe_pattern_constant_z() {
-        let s = Stripe::new(Color::white(), Color::black());
+        let s = Stripe::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        );
         assert_eq!(s.pattern_at(&Point::zero()), Color::white());
         assert_eq!(
             s.pattern_at(&Point {
@@ -55,7 +63,10 @@ mod tests {
     }
     #[test]
     fn create_stripe_pattern_alters_x() {
-        let s = Stripe::new(Color::white(), Color::black());
+        let s = Stripe::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        );
         assert_eq!(s.pattern_at(&Point::zero()), Color::white());
         assert_eq!(
             s.pattern_at(&Point {
@@ -101,9 +112,12 @@ mod tests {
 
     #[test]
     fn test_stripe_with_object_transformation() {
-        let mut s = Object::Sphere(Sphere::new(Material::default()));
+        let mut s = Object::Sphere(Sphere::new(&Material::default()));
         s.set_transform(Matrix44::scaling(2.0, 2.0, 2.0));
-        let p = Pattern::Stripe(Stripe::new(Color::white(), Color::black()));
+        let p = Pattern::Stripe(Stripe::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        ));
         let c = p.pattern_at_object(
             &Point {
                 x: 1.5,
@@ -116,9 +130,12 @@ mod tests {
     }
     #[test]
     fn test_stripe_with_pattern_transformation() {
-        let s = Object::Sphere(Sphere::new(Material::default()));
-        let mut p = Pattern::Stripe(Stripe::new(Color::white(), Color::black()));
-        p.set_transform(Matrix44::scaling(2.0, 2.0, 2.0));
+        let s = Object::Sphere(Sphere::new(&Material::default()));
+        let p = Pattern::Stripe(Stripe::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        ))
+        .set_transform(Matrix44::scaling(2.0, 2.0, 2.0));
         let c = p.pattern_at_object(
             &Point {
                 x: 1.5,
@@ -131,10 +148,13 @@ mod tests {
     }
     #[test]
     fn test_stripe_with_pattern_and_object_transformation() {
-        let mut s = Object::Sphere(Sphere::new(Material::default()));
+        let mut s = Object::Sphere(Sphere::new(&Material::default()));
         s.set_transform(Matrix44::scaling(2.0, 2.0, 2.0));
-        let mut p = Pattern::Stripe(Stripe::new(Color::white(), Color::black()));
-        p.set_transform(Matrix44::translation(0.5, 0.0, 0.0));
+        let p = Pattern::Stripe(Stripe::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        ))
+        .set_transform(Matrix44::translation(0.5, 0.0, 0.0));
         let c = p.pattern_at_object(
             &Point {
                 x: 2.5,

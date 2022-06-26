@@ -43,7 +43,7 @@ pub fn lighting(
     let diffuse: Color;
     let specular: Color;
 
-    match material.pattern {
+    match &material.pattern {
         Some(x) => material_color = x.pattern_at_object(hit_point, object),
         None => {}
     }

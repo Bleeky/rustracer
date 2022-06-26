@@ -2,6 +2,7 @@
 mod tests {
     use crate::light::*;
     use crate::objects::sphere::*;
+    use crate::patterns::solid_color::*;
     use crate::patterns::stripe::*;
     use crate::patterns::*;
     use crate::point::*;
@@ -26,7 +27,7 @@ mod tests {
             },
             color: Color::default(),
         });
-        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let sphere = Object::Sphere(Sphere::new(&Material::default()));
         let res = lighting(
             &Material::default(),
             &sphere,
@@ -66,7 +67,7 @@ mod tests {
             },
             color: Color::default(),
         });
-        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let sphere = Object::Sphere(Sphere::new(&Material::default()));
         let res = lighting(
             &Material::default(),
             &sphere,
@@ -106,7 +107,7 @@ mod tests {
             },
             color: Color::default(),
         });
-        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let sphere = Object::Sphere(Sphere::new(&Material::default()));
         let res = lighting(
             &Material::default(),
             &sphere,
@@ -147,7 +148,7 @@ mod tests {
             color: Color::default(),
         });
         let in_shadow = true;
-        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let sphere = Object::Sphere(Sphere::new(&Material::default()));
         let result = lighting(
             &Material::default(),
             &sphere,
@@ -217,7 +218,10 @@ mod tests {
         m.ambient = 1.0;
         m.diffuse = 0.0;
         m.specular = 0.0;
-        m.pattern = Some(Pattern::Stripe(Stripe::new(Color::white(), Color::black())));
+        m.pattern = Some(Pattern::Stripe(Stripe::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        )));
         let eyev = Vector3 {
             x: 0.0,
             y: 0.0,
@@ -236,7 +240,7 @@ mod tests {
             },
             color: Color::white(),
         });
-        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let sphere = Object::Sphere(Sphere::new(&Material::default()));
         let c1 = lighting(
             &m,
             &sphere,

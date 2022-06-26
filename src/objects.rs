@@ -10,7 +10,7 @@ use crate::point::*;
 use crate::ray::*;
 use crate::vector3::*;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Object {
     Sphere(Sphere),
     Plane(Plane),

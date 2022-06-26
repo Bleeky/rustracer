@@ -4,7 +4,10 @@ mod tests {
 
     #[test]
     fn checker_repeat_in_x() {
-        let checker = Checker::new(Color::white(), Color::black());
+        let checker = Checker::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        );
         assert_eq!(checker.pattern_at(&Point::zero()), Color::white());
         assert_eq!(
             checker.pattern_at(&Point {
@@ -25,7 +28,10 @@ mod tests {
     }
     #[test]
     fn checker_repeat_in_y() {
-        let checker = Checker::new(Color::white(), Color::black());
+        let checker = Checker::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        );
         assert_eq!(checker.pattern_at(&Point::zero()), Color::white());
         assert_eq!(
             checker.pattern_at(&Point {
@@ -46,7 +52,10 @@ mod tests {
     }
     #[test]
     fn checker_repeat_in_z() {
-        let checker = Checker::new(Color::white(), Color::black());
+        let checker = Checker::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        );
         assert_eq!(checker.pattern_at(&Point::zero()), Color::white());
         assert_eq!(
             checker.pattern_at(&Point {

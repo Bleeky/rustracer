@@ -8,37 +8,37 @@ mod tests {
     #[test]
     fn test_smallest_intersection() {
         let i1 = Intersection {
-            object: Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(&&Material::default())),
             distance: 1.0,
         };
         let i2 = Intersection {
-            object: Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(&&Material::default())),
             distance: 2.0,
         };
-        assert_eq!(hit(vec![i1, i2]).unwrap(), i1);
+        assert_eq!(hit(vec![i1.clone(), i2]).unwrap(), i1);
     }
 
     #[test]
     fn test_smallest_intersection_2() {
         let i1 = Intersection {
-            object: Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(&&Material::default())),
             distance: -1.0,
         };
         let i2 = Intersection {
-            object: Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(&&Material::default())),
             distance: 2.0,
         };
-        assert_eq!(hit(vec![i1, i2]).unwrap(), i2);
+        assert_eq!(hit(vec![i1, i2.clone()]).unwrap(), i2);
     }
 
     #[test]
     fn test_smallest_intersection_3() {
         let i1 = Intersection {
-            object: Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(&Material::default())),
             distance: -2.0,
         };
         let i2 = Intersection {
-            object: Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(&Material::default())),
             distance: -1.0,
         };
         assert!(hit(vec![i1, i2]) == None);
@@ -47,22 +47,22 @@ mod tests {
     #[test]
     fn test_smallest_intersection_4() {
         let i1 = Intersection {
-            object: Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(&Material::default())),
             distance: 5.0,
         };
         let i2 = Intersection {
-            object: Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(&Material::default())),
             distance: 7.0,
         };
         let i3 = Intersection {
-            object: Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(&Material::default())),
             distance: -3.0,
         };
         let i4 = Intersection {
-            object: Object::Sphere(Sphere::new(Material::default())),
+            object: Object::Sphere(Sphere::new(&Material::default())),
             distance: 2.0,
         };
-        assert_eq!(hit(vec![i1, i2, i3, i4]).unwrap(), i4);
+        assert_eq!(hit(vec![i1, i2, i3, i4.clone()]).unwrap(), i4);
     }
 
     #[test]
@@ -79,7 +79,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let sphere = Object::Sphere(Sphere::new(&Material::default()));
         let i = sphere.intersect(&ray);
         assert!(Option::is_some(&i));
         let u = i.unwrap();
@@ -101,7 +101,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let sphere = Object::Sphere(Sphere::new(&Material::default()));
         let i = sphere.intersect(&ray);
         assert_eq!(i, None);
     }
@@ -120,7 +120,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let sphere = Object::Sphere(Sphere::new(&Material::default()));
         let i = sphere.intersect(&ray);
         assert!(Option::is_some(&i));
         let u = i.unwrap();
@@ -142,7 +142,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let sphere = Object::Sphere(Sphere::new(&Material::default()));
         let i = sphere.intersect(&ray);
         assert!(Option::is_some(&i));
         let u = i.unwrap();
@@ -187,7 +187,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let sphere = Object::Sphere(Sphere::new(&Material::default()));
         let i = Intersection {
             object: sphere,
             distance: 4.0,
@@ -235,7 +235,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let sphere = Object::Sphere(Sphere::new(&Material::default()));
         let i = Intersection {
             object: sphere,
             distance: 4.0,
@@ -258,7 +258,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Object::Sphere(Sphere::new(Material::default()));
+        let sphere = Object::Sphere(Sphere::new(&Material::default()));
         let i = Intersection {
             object: sphere,
             distance: 1.0,
@@ -306,9 +306,9 @@ mod tests {
                 z: 1.0,
             },
         };
-        let shape = world.objects[0];
+        let shape = &world.objects[0];
         let i = Intersection {
-            object: shape,
+            object: shape.clone(),
             distance: 4.0,
         };
         let comps = prepare_computations(&i, &ray);
@@ -350,9 +350,9 @@ mod tests {
                 z: 1.0,
             },
         };
-        let shape = world.objects[1];
+        let shape = &world.objects[1];
         let i = Intersection {
-            object: shape,
+            object: shape.clone(),
             distance: 0.5,
         };
         let comps = prepare_computations(&i, &ray);
@@ -377,8 +377,8 @@ mod tests {
             },
             color: Color::default(),
         })];
-        let sphere1 = Object::Sphere(Sphere::new(Material::default()));
-        let mut sphere2 = Object::Sphere(Sphere::new(Material::default()));
+        let sphere1 = Object::Sphere(Sphere::new(&Material::default()));
+        let mut sphere2 = Object::Sphere(Sphere::new(&Material::default()));
         sphere2.set_transform(Matrix44::translation(0.0, 0.0, 10.0));
         let world = World {
             objects: vec![sphere1, sphere2],
@@ -397,7 +397,7 @@ mod tests {
             },
         };
         let i = Intersection {
-            object: sphere2,
+            object: Object::Sphere(Sphere::new(&Material::default())),
             distance: 4.0,
         };
         let comps = prepare_computations(&i, &r);
@@ -426,7 +426,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let mut s = Object::Sphere(Sphere::new(Material::default()));
+        let mut s = Object::Sphere(Sphere::new(&Material::default()));
         s.set_transform(Matrix44::translation(0.0, 0.0, 1.0));
 
         let i = Intersection {
@@ -491,9 +491,9 @@ mod tests {
                 z: 1.0,
             },
         };
-        let shape = world.objects[1];
+        let shape = &world.objects[1];
         let intersection = Intersection {
-            object: shape,
+            object: shape.clone(),
             distance: 0.5,
         };
         let comps = prepare_computations(&intersection, &ray);
@@ -571,7 +571,7 @@ mod tests {
             ambient: 1.0,
             ..Default::default()
         });
-        let inner = world.objects[1];
+        let inner = &world.objects[1];
         let ray = Ray {
             origin: Point {
                 x: 0.0,

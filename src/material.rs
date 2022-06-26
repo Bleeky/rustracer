@@ -1,6 +1,6 @@
 use crate::{color::*, patterns::Pattern};
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Material {
     pub color: Color,
     pub ambient: f32,

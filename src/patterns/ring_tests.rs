@@ -4,7 +4,10 @@ mod tests {
 
     #[test]
     fn create_stripe_pattern() {
-        let s = Ring::new(Color::white(), Color::black());
+        let s = Ring::new(
+            Pattern::SolidColor(SolidColor::new(Color::white())),
+            Pattern::SolidColor(SolidColor::new(Color::black())),
+        );
         assert_eq!(s.pattern_at(&Point::zero()), Color::white());
         assert_eq!(
             s.pattern_at(&Point {
