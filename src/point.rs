@@ -44,6 +44,18 @@ impl Sub<Point> for Point {
     }
 }
 
+impl Add<f64> for Point {
+    type Output = Point;
+
+    fn add(self, other: f64) -> Point {
+        Point {
+            x: self.x + other,
+            y: self.y + other,
+            z: self.z + other,
+        }
+    }
+}
+
 impl Mul<Matrix44> for Point {
     type Output = Point;
 

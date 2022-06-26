@@ -1,6 +1,7 @@
 pub mod blend;
 pub mod checker;
 pub mod gradient;
+pub mod perturbed;
 pub mod radial_gradient;
 pub mod ring;
 pub mod solid_color;
@@ -12,6 +13,7 @@ use crate::objects::*;
 use crate::patterns::blend::*;
 use crate::patterns::checker::*;
 use crate::patterns::gradient::*;
+use crate::patterns::perturbed::*;
 use crate::patterns::radial_gradient::*;
 use crate::patterns::ring::*;
 use crate::patterns::solid_color::*;
@@ -26,6 +28,7 @@ pub enum Pattern {
     Ring(Ring),
     Checker(Checker),
     SolidColor(SolidColor),
+    Perturbed(Perturbed),
     Blend(Blend),
 }
 
@@ -40,6 +43,7 @@ impl Pattern {
             Pattern::RadialGradient(ref s) => s.pattern_at(&object_point),
             Pattern::SolidColor(ref s) => s.pattern_at(&object_point),
             Pattern::Blend(ref s) => s.pattern_at(&object_point),
+            Pattern::Perturbed(ref s) => s.pattern_at(&object_point),
         }
     }
 
@@ -52,6 +56,7 @@ impl Pattern {
             Pattern::RadialGradient(ref s) => s.pattern_at(&point),
             Pattern::SolidColor(ref s) => s.pattern_at(&point),
             Pattern::Blend(ref s) => s.pattern_at(&point),
+            Pattern::Perturbed(ref s) => s.pattern_at(&point),
         }
     }
 
@@ -63,6 +68,7 @@ impl Pattern {
             Pattern::Checker(ref mut s) => s.transform = transform,
             Pattern::RadialGradient(ref mut s) => s.transform = transform,
             Pattern::Blend(ref mut s) => s.transform = transform,
+            Pattern::Perturbed(ref mut s) => s.transform = transform,
             Pattern::SolidColor(ref mut _s) => {}
         }
         self
