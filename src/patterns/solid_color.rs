@@ -11,7 +11,7 @@ impl SolidColor {
         SolidColor { color }
     }
 
-    pub fn pattern_at(&self, point: &Point) -> Color {
+    pub fn pattern_at(&self, _point: &Point) -> Color {
         self.color
     }
 }

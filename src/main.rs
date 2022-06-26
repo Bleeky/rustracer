@@ -28,6 +28,7 @@ use crate::matrix::*;
 use crate::objects::plane::*;
 use crate::objects::sphere::*;
 use crate::objects::*;
+use crate::patterns::blend::*;
 use crate::patterns::checker::*;
 use crate::patterns::gradient::*;
 use crate::patterns::radial_gradient::*;
@@ -139,7 +140,7 @@ fn draw(frame: &mut [u8]) {
             green: 0.9,
             blue: 0.9,
         },
-        pattern: Some(Pattern::Checker(Checker::new(
+        pattern: Some(Pattern::Blend(Blend::new(
             Pattern::Stripe(Stripe::new(
                 Pattern::SolidColor(SolidColor::new(Color::green())),
                 Pattern::SolidColor(SolidColor::new(Color::green() + 0.08)),
@@ -148,9 +149,21 @@ fn draw(frame: &mut [u8]) {
             Pattern::Stripe(Stripe::new(
                 Pattern::SolidColor(SolidColor::new(Color::yellow())),
                 Pattern::SolidColor(SolidColor::new(Color::yellow() - 0.2)),
-            ))
-            .set_transform(Matrix44::scaling(0.2, 0.2, 0.2).rotate_y(-std::f64::consts::FRAC_PI_4)),
+            )),
+            0.5,
         ))),
+        // pattern: Some(Pattern::Checker(Checker::new(
+        //     Pattern::Stripe(Stripe::new(
+        //         Pattern::SolidColor(SolidColor::new(Color::green())),
+        //         Pattern::SolidColor(SolidColor::new(Color::green() + 0.08)),
+        //     ))
+        //     .set_transform(Matrix44::scaling(0.2, 0.2, 0.2).rotate_y(std::f64::consts::FRAC_PI_4)),
+        //     Pattern::Stripe(Stripe::new(
+        //         Pattern::SolidColor(SolidColor::new(Color::yellow())),
+        //         Pattern::SolidColor(SolidColor::new(Color::yellow() - 0.2)),
+        //     ))
+        //     .set_transform(Matrix44::scaling(0.2, 0.2, 0.2).rotate_y(-std::f64::consts::FRAC_PI_4)),
+        // ))),
         ..Material::default()
     }));
 
