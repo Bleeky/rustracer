@@ -1,8 +1,12 @@
 #[cfg(test)]
 mod tests {
+    use std::vec;
+
+    use crate::color;
     use crate::intersection::*;
     use crate::material::*;
     use crate::matrix::*;
+    use crate::objects::plane::Plane;
     use crate::objects::sphere::*;
 
     #[test]
@@ -312,7 +316,7 @@ mod tests {
             distance: 4.0,
         };
         let comps = prepare_computations(&i, &ray);
-        let c = shade_hit(&world, &comps, &i.object);
+        let c = shade_hit(&world, &comps, 0);
         assert_eq!(
             c,
             Color {
@@ -356,7 +360,7 @@ mod tests {
             distance: 0.5,
         };
         let comps = prepare_computations(&i, &ray);
-        let c = shade_hit(&world, &comps, &i.object);
+        let c = shade_hit(&world, &comps, 0);
         assert_eq!(
             c,
             Color {
@@ -378,8 +382,8 @@ mod tests {
             color: Color::default(),
         })];
         let sphere1 = Object::Sphere(Sphere::new(&Material::default()));
-        let mut sphere2 = Object::Sphere(Sphere::new(&Material::default()));
-        sphere2.set_transform(Matrix44::translation(0.0, 0.0, 10.0));
+        let sphere2 = Object::Sphere(Sphere::new(&Material::default()))
+            .set_transform(Matrix44::translation(0.0, 0.0, 10.0));
         let world = World {
             objects: vec![sphere1, sphere2],
             lights,
@@ -401,7 +405,7 @@ mod tests {
             distance: 4.0,
         };
         let comps = prepare_computations(&i, &r);
-        let c = shade_hit(&world, &comps, &i.object);
+        let c = shade_hit(&world, &comps, 0);
         assert_eq!(
             c,
             Color {
@@ -426,8 +430,8 @@ mod tests {
                 z: 1.0,
             },
         };
-        let mut s = Object::Sphere(Sphere::new(&Material::default()));
-        s.set_transform(Matrix44::translation(0.0, 0.0, 1.0));
+        let s = Object::Sphere(Sphere::new(&Material::default()))
+            .set_transform(Matrix44::translation(0.0, 0.0, 1.0));
 
         let i = Intersection {
             object: s,
@@ -453,7 +457,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let color = color_at(&world, &ray);
+        let color = color_at(&world, &ray, 0);
         assert_eq!(
             color,
             Color {
@@ -497,7 +501,7 @@ mod tests {
             distance: 0.5,
         };
         let comps = prepare_computations(&intersection, &ray);
-        let color = shade_hit(&world, &comps, &intersection.object);
+        let color = shade_hit(&world, &comps, 0);
         assert_eq!(
             color,
             Color {
@@ -523,7 +527,7 @@ mod tests {
                 z: 0.0,
             },
         };
-        let color = color_at(&world, &ray);
+        let color = color_at(&world, &ray, 0);
         assert_eq!(
             color,
             Color {
@@ -549,7 +553,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let color = color_at(&world, &ray);
+        let color = color_at(&world, &ray, 0);
         assert_eq!(
             color,
             Color {
@@ -584,7 +588,205 @@ mod tests {
                 z: -1.0,
             },
         };
-        let color = color_at(&world, &ray);
+        let color = color_at(&world, &ray, 0);
         assert_eq!(color, inner.material().color);
+    }
+
+    #[test]
+    fn test_precomputing_reflection_vector() {
+        let p = Object::Plane(Plane::new(Material::default()));
+        let ray = Ray {
+            origin: Point {
+                x: 0.0,
+                y: 1.0,
+                z: -1.0,
+            },
+            direction: Vector3 {
+                x: 0.0,
+                y: -2.0_f64.sqrt() / 2.0,
+                z: 2.0_f64.sqrt() / 2.0,
+            },
+        };
+        let intersection = Intersection {
+            object: p.clone(),
+            distance: 2.0_f64.sqrt(),
+        };
+        let comps = prepare_computations(&intersection, &ray);
+        assert_eq!(
+            comps.reflectv,
+            Vector3 {
+                x: 0.0,
+                y: 2.0_f64.sqrt() / 2.0,
+                z: 2.0_f64.sqrt() / 2.0
+            }
+        )
+    }
+
+    #[test]
+    fn test_reflected_color_on_non_reflective_material() {
+        let mut world = World::default();
+        let ray = Ray {
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            direction: Vector3 {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
+        };
+        world.objects[1].set_material(Material {
+            ambient: 1.0,
+            ..Material::default()
+        });
+        let intersection = Intersection {
+            object: world.objects[1].clone(),
+            distance: 1.0,
+        };
+        let comps = prepare_computations(&intersection, &ray);
+        let color = reflected_color(&world, &comps, 0);
+        assert_eq!(color, Color::black());
+    }
+
+    #[test]
+    fn test_reflected_color_on_reflective_material() {
+        let mut world = World::default();
+        let plane = Object::Plane(Plane::new(Material {
+            reflective: 0.5,
+            ..Material::default()
+        }))
+        .set_transform(Matrix44::translation(0.0, -1.0, 0.0));
+        world.objects.push(plane.clone());
+        let ray = Ray {
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: -3.0,
+            },
+            direction: Vector3 {
+                x: 0.0,
+                y: -2.0_f64.sqrt() / 2.0,
+                z: 2.0_f64.sqrt() / 2.0,
+            },
+        };
+        let intersection = Intersection {
+            object: plane.clone(),
+            distance: 2.0_f64.sqrt(),
+        };
+        let comps = prepare_computations(&intersection, &ray);
+        let color = reflected_color(&world, &comps, 5);
+        assert_eq!(
+            color,
+            Color {
+                red: 0.1903306,
+                green: 0.23791324,
+                blue: 0.14274795
+            }
+        );
+    }
+
+    #[test]
+    fn test_shade_hit_on_reflective_material() {
+        let mut world = World::default();
+        let plane = Object::Plane(Plane::new(Material {
+            reflective: 0.5,
+            ..Material::default()
+        }))
+        .set_transform(Matrix44::translation(0.0, -1.0, 0.0));
+        world.objects.push(plane.clone());
+        let ray = Ray {
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: -3.0,
+            },
+            direction: Vector3 {
+                x: 0.0,
+                y: -2.0_f64.sqrt() / 2.0,
+                z: 2.0_f64.sqrt() / 2.0,
+            },
+        };
+        let intersection = Intersection {
+            object: plane.clone(),
+            distance: 2.0_f64.sqrt(),
+        };
+        let comps = prepare_computations(&intersection, &ray);
+        let color = shade_hit(&world, &comps, 5);
+        assert_eq!(
+            color,
+            Color {
+                red: 0.8767561,
+                green: 0.9243387,
+                blue: 0.8291734
+            }
+        );
+    }
+
+    #[test]
+    fn test_color_at_with_mutually_reflective() {
+        let light = Light::PointLight(PointLight {
+            position: Point {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            color: Color::white(),
+        });
+        let lower_plane = Object::Plane(Plane::new(Material {
+            reflective: 1.0,
+            ..Material::default()
+        }))
+        .set_transform(Matrix44::translation(0.0, -1.0, 0.0));
+        let higher_plane = Object::Plane(Plane::new(Material {
+            reflective: 1.0,
+            ..Material::default()
+        }))
+        .set_transform(Matrix44::translation(0.0, 1.0, 0.0));
+        let world = World::new(vec![lower_plane.clone(), higher_plane.clone()], vec![light]);
+        let ray = Ray {
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            direction: Vector3 {
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+        };
+        let color_at = color_at(&world, &ray, 5);
+    }
+
+    #[test]
+    fn test_recursive_maximum_depth() {
+        let mut world = World::default();
+        let plane = Object::Plane(Plane::new(Material {
+            reflective: 0.5,
+            ..Material::default()
+        }))
+        .set_transform(Matrix44::translation(0.0, -1.0, 0.0));
+        world.objects.push(plane.clone());
+        let ray = Ray {
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: -3.0,
+            },
+            direction: Vector3 {
+                x: 0.0,
+                y: -2.0_f64.sqrt() / 2.0,
+                z: 2.0_f64.sqrt() / 2.0,
+            },
+        };
+        let intersection = Intersection {
+            object: plane.clone(),
+            distance: 2.0_f64.sqrt(),
+        };
+        let comps = prepare_computations(&intersection, &ray);
+        let color = reflected_color(&world, &comps, 0);
+        assert_eq!(color, Color::black());
     }
 }

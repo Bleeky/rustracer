@@ -112,8 +112,8 @@ mod tests {
 
     #[test]
     fn test_stripe_with_object_transformation() {
-        let mut s = Object::Sphere(Sphere::new(&Material::default()));
-        s.set_transform(Matrix44::scaling(2.0, 2.0, 2.0));
+        let s = Object::Sphere(Sphere::new(&Material::default()))
+            .set_transform(Matrix44::scaling(2.0, 2.0, 2.0));
         let p = Pattern::Stripe(Stripe::new(
             Pattern::SolidColor(SolidColor::new(Color::white())),
             Pattern::SolidColor(SolidColor::new(Color::black())),
@@ -148,8 +148,8 @@ mod tests {
     }
     #[test]
     fn test_stripe_with_pattern_and_object_transformation() {
-        let mut s = Object::Sphere(Sphere::new(&Material::default()));
-        s.set_transform(Matrix44::scaling(2.0, 2.0, 2.0));
+        let s = Object::Sphere(Sphere::new(&Material::default()))
+            .set_transform(Matrix44::scaling(2.0, 2.0, 2.0));
         let p = Pattern::Stripe(Stripe::new(
             Pattern::SolidColor(SolidColor::new(Color::white())),
             Pattern::SolidColor(SolidColor::new(Color::black())),

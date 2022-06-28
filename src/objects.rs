@@ -52,10 +52,11 @@ impl Object {
         }
     }
 
-    pub fn set_transform(&mut self, transform: Matrix44) {
-        match *self {
+    pub fn set_transform(mut self, transform: Matrix44) -> Self {
+        match self {
             Object::Sphere(ref mut s) => s.set_transform(transform),
             Object::Plane(ref mut s) => s.set_transform(transform),
         }
+        self
     }
 }

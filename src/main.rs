@@ -40,10 +40,11 @@ use crate::point::*;
 use crate::vector3::*;
 use crate::world::*;
 
-// const WIDTH: u32 = 500;
-// const HEIGHT: u32 = 500;
-const WIDTH: u32 = 2560;
-const HEIGHT: u32 = 1440;
+const WIDTH: u32 = 1000;
+const HEIGHT: u32 = 1000;
+const MAX_RECURSION: i32 = 5;
+// const WIDTH: u32 = 2560;
+// const HEIGHT: u32 = 1440;
 
 fn main() -> Result<(), Error> {
     let mut input = WinitInputHelper::new();
@@ -80,7 +81,7 @@ fn main() -> Result<(), Error> {
 }
 
 fn draw(frame: &mut [u8]) {
-    let mut middlesphere = Object::Sphere(Sphere::new(&Material {
+    let middlesphere = Object::Sphere(Sphere::new(&Material {
         color: Color {
             red: 0.1,
             green: 1.0,
@@ -96,9 +97,9 @@ fn draw(frame: &mut [u8]) {
             .set_transform(Matrix44::scaling(0.5, 0.5, 0.5)),
         ),
         ..Material::default()
-    }));
-    middlesphere.set_transform(Matrix44::translation(-0.5, 1.0, 0.5));
-    let mut rightsphere = Object::Sphere(Sphere::new(&Material {
+    }))
+    .set_transform(Matrix44::translation(-0.5, 1.0, 0.5));
+    let rightsphere = Object::Sphere(Sphere::new(&Material {
         color: Color {
             red: 0.5,
             green: 1.0,
@@ -106,6 +107,7 @@ fn draw(frame: &mut [u8]) {
         },
         diffuse: 0.7,
         specular: 0.3,
+        reflective: 0.9,
         pattern: Some(Pattern::Perturbed(Perturbed::new(
             Pattern::Ring(Ring::new(
                 Pattern::SolidColor(SolidColor::new(Color::yellow() + 0.2)),
@@ -115,9 +117,9 @@ fn draw(frame: &mut [u8]) {
             0.4,
         ))),
         ..Material::default()
-    }));
-    rightsphere.set_transform(Matrix44::scaling(0.5, 0.5, 0.5).translate(1.5, 0.5, -0.5));
-    let mut leftsphere = Object::Sphere(Sphere::new(&Material {
+    }))
+    .set_transform(Matrix44::scaling(0.5, 0.5, 0.5).translate(1.5, 0.5, -0.5));
+    let leftsphere = Object::Sphere(Sphere::new(&Material {
         color: Color {
             red: 1.0,
             green: 0.8,
@@ -133,12 +135,13 @@ fn draw(frame: &mut [u8]) {
             .set_transform(Matrix44::rotation_x(-std::f64::consts::FRAC_PI_4).scale(0.2, 0.2, 0.2)),
         ),
         ..Material::default()
-    }));
-    leftsphere.set_transform(Matrix44::scaling(0.33, 0.33, 0.33).translate(-1.5, 0.33, -0.75));
+    }))
+    .set_transform(Matrix44::scaling(0.33, 0.33, 0.33).translate(-1.5, 0.33, -0.75));
     let plane = Object::Plane(Plane::new(Material {
         specular: 0.0,
         diffuse: 0.5,
         ambient: 0.01,
+        reflective: 0.3,
         color: Color {
             red: 0.0,
             green: 0.9,
@@ -219,7 +222,7 @@ fn draw(frame: &mut [u8]) {
         let x = (i % WIDTH as usize) as u32;
         let y = (i / WIDTH as usize) as u32;
         let ray = cam.ray_for_pixel(x, y);
-        let color = color_at(&world, &ray);
+        let color = color_at(&world, &ray, MAX_RECURSION);
         pixel.copy_from_slice(&[
             (color.red * 255.0) as u8,
             (color.green * 255.0) as u8,

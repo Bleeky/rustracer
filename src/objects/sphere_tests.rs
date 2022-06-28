@@ -26,9 +26,8 @@ mod tests {
                 z: 1.0,
             },
         };
-        let mut s = Object::Sphere(Sphere::new(&Material::default()));
-        let t = Matrix44::translation(5.0, 0.0, 0.0);
-        s.set_transform(t);
+        let s = Object::Sphere(Sphere::new(&Material::default()))
+            .set_transform(Matrix44::translation(5.0, 0.0, 0.0));
         let i = s.intersect(&r);
         assert_eq!(i, None);
     }
@@ -47,9 +46,8 @@ mod tests {
                 z: 1.0,
             },
         };
-        let mut s = Object::Sphere(Sphere::new(&Material::default()));
-        let t = Matrix44::scaling(2.0, 2.0, 2.0);
-        s.set_transform(t);
+        let s = Object::Sphere(Sphere::new(&Material::default()))
+            .set_transform(Matrix44::scaling(2.0, 2.0, 2.0));
         let i = s.intersect(&r);
         assert!(Option::is_some(&i));
         let u = i.unwrap();

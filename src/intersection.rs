@@ -27,6 +27,7 @@ pub struct Computations {
     pub distance: f64,
     pub point: Point,
     pub eyev: Vector3,
+    pub reflectv: Vector3,
     pub normalv: Vector3,
     pub object: Object,
     pub inside: bool,
@@ -42,6 +43,7 @@ pub fn prepare_computations(intersection: &Intersection, ray: &Ray) -> Computati
         inside = true;
         normalv = -normalv;
     }
+    let reflectv = ray.direction.reflect(&normalv);
     Computations {
         distance: intersection.distance,
         object: intersection.object.clone(),
@@ -49,6 +51,7 @@ pub fn prepare_computations(intersection: &Intersection, ray: &Ray) -> Computati
         eyev,
         normalv,
         inside,
+        reflectv,
         // over_point: point + normalv * f64::EPSILON,
         over_point: point + normalv * 1e-11,
     }
@@ -63,33 +66,42 @@ pub fn hit(intersections: Vec<Intersection>) -> Option<Intersection> {
         .min_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap())
 }
 
-pub fn shade_hit(world: &World, computations: &Computations, hit_object: &Object) -> Color {
+pub fn shade_hit(world: &World, computations: &Computations, remaining: i32) -> Color {
     world.lights.iter().fold(Color::black(), |sum, light| {
         sum + lighting(
             computations.object.material(),
-            hit_object,
+            &computations.object,
             light,
             &computations.point,
             &computations.eyev,
             &computations.normalv,
             is_shadowed(world, &computations.over_point, light),
-        )
+        ) + reflected_color(world, &computations, remaining)
     })
 }
 
-pub fn color_at(world: &World, ray: &Ray) -> Color {
+pub fn color_at(world: &World, ray: &Ray, remaining: i32) -> Color {
     match hit(intersect_world(ray, world)) {
-        Some(intersection) => shade_hit(
-            world,
-            &prepare_computations(&intersection, ray),
-            &intersection.object,
-        ),
-        None => Color {
-            red: 0.0,
-            green: 0.0,
-            blue: 0.0,
-        },
+        Some(intersection) => {
+            shade_hit(world, &prepare_computations(&intersection, ray), remaining)
+        }
+        None => Color::black(),
     }
+}
+
+pub fn reflected_color(world: &World, comps: &Computations, remaining: i32) -> Color {
+    if remaining <= 0 {
+        return Color::black();
+    }
+    if comps.object.material().reflective == 0.0 {
+        return Color::black();
+    }
+    let reflected_ray = Ray {
+        origin: comps.over_point,
+        direction: comps.reflectv,
+    };
+    let color = color_at(world, &reflected_ray, remaining - 1);
+    color * comps.object.material().reflective
 }
 
 #[cfg(test)]

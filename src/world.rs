@@ -11,6 +11,12 @@ pub struct World {
     pub lights: Vec<Light>,
 }
 
+impl World {
+    pub fn new(objects: Vec<Object>, lights: Vec<Light>) -> Self {
+        World { objects, lights }
+    }
+}
+
 impl Default for World {
     fn default() -> Self {
         let sphere1 = Sphere::new(&Material {

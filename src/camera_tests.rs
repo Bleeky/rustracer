@@ -89,7 +89,7 @@ mod tests {
             },
         );
         let ray = camera.ray_for_pixel(5, 5);
-        let color = color_at(&world, &ray);
+        let color = color_at(&world, &ray, 0);
         assert_eq!(
             color,
             Color {
