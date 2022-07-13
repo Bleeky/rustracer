@@ -8,6 +8,8 @@ pub struct Material {
     pub specular: f32,
     pub shininess: f32,
     pub reflective: f32,
+    pub transparency: f32,
+    pub refractive_index: f32,
     pub pattern: Option<Pattern>,
 }
 
@@ -20,6 +22,8 @@ impl Default for Material {
             specular: 0.9,
             reflective: 0.0,
             shininess: 200.0,
+            transparency: 0.0,
+            refractive_index: 1.0,
             pattern: None,
         }
     }

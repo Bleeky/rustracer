@@ -24,6 +24,19 @@ impl Sphere {
         }
     }
 
+    pub fn glass(refractive_index: f32) -> Self {
+        Sphere {
+            center: Point::zero(),
+            radius: 1.0,
+            material: Material {
+                transparency: 1.0,
+                refractive_index,
+                ..Material::default()
+            },
+            transform: Matrix44::identity(),
+        }
+    }
+
     pub fn set_transform(&mut self, transform: Matrix44) {
         self.transform = transform;
     }

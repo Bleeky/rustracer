@@ -23,11 +23,35 @@ impl Color {
         }
     }
 
+    pub fn gray() -> Self {
+        Color {
+            red: 0.1,
+            green: 0.1,
+            blue: 0.1,
+        }
+    }
+
+    pub fn braun() -> Self {
+        Color {
+            red: 1.0,
+            green: 0.5,
+            blue: 0.5,
+        }
+    }
+
     pub fn yellow() -> Self {
         Color {
             red: 1.0,
             green: 1.0,
             blue: 0.0,
+        }
+    }
+
+    pub fn orange() -> Self {
+        Color {
+            red: 1.0,
+            green: 0.67,
+            blue: 0.1,
         }
     }
 

@@ -40,8 +40,10 @@ use crate::point::*;
 use crate::vector3::*;
 use crate::world::*;
 
-const WIDTH: u32 = 1000;
-const HEIGHT: u32 = 1000;
+const WIDTH: u32 = 400;
+const HEIGHT: u32 = 400;
+// const WIDTH: u32 = 1200;
+// const HEIGHT: u32 = 800;
 const MAX_RECURSION: i32 = 5;
 // const WIDTH: u32 = 2560;
 // const HEIGHT: u32 = 1440;
@@ -87,18 +89,24 @@ fn draw(frame: &mut [u8]) {
             green: 1.0,
             blue: 0.5,
         },
-        diffuse: 0.7,
-        specular: 0.3,
+        diffuse: 1.0,
+        specular: 0.0,
+        // refractive_index: 1.59,
+        // transparency: 1.0,
         pattern: Some(
             Pattern::Checker(Checker::new(
                 Pattern::SolidColor(SolidColor::new(Color::cyan())),
-                Pattern::SolidColor(SolidColor::new(Color::cyan() - 0.2)),
+                Pattern::SolidColor(SolidColor::new(Color::cyan() - 0.08)),
             ))
-            .set_transform(Matrix44::scaling(0.5, 0.5, 0.5)),
+            .set_transform(
+                Matrix44::scaling(0.5, 0.5, 0.5)
+                    .rotate_z(std::f64::consts::FRAC_PI_6)
+                    .rotate_x(-std::f64::consts::FRAC_PI_6),
+            ),
         ),
         ..Material::default()
     }))
-    .set_transform(Matrix44::translation(-0.5, 1.0, 0.5));
+    .set_transform(Matrix44::scaling(2.0, 2.0, 2.0).translate(-0.5, 2.0, 3.5));
     let rightsphere = Object::Sphere(Sphere::new(&Material {
         color: Color {
             red: 0.5,
@@ -107,11 +115,11 @@ fn draw(frame: &mut [u8]) {
         },
         diffuse: 0.7,
         specular: 0.3,
-        reflective: 0.9,
+        reflective: 0.3,
         pattern: Some(Pattern::Perturbed(Perturbed::new(
             Pattern::Ring(Ring::new(
                 Pattern::SolidColor(SolidColor::new(Color::yellow() + 0.2)),
-                Pattern::SolidColor(SolidColor::new(Color::red() - 0.08)),
+                Pattern::SolidColor(SolidColor::new(Color::orange())),
             ))
             .set_transform(Matrix44::rotation_x(std::f64::consts::FRAC_PI_2).scale(0.1, 0.1, 0.1)),
             0.4,
@@ -119,6 +127,20 @@ fn draw(frame: &mut [u8]) {
         ..Material::default()
     }))
     .set_transform(Matrix44::scaling(0.5, 0.5, 0.5).translate(1.5, 0.5, -0.5));
+    let rightsphere_2 = Object::Sphere(Sphere::new(&Material {
+        color: Color {
+            red: 0.4,
+            green: 0.4,
+            blue: 0.4,
+        },
+        diffuse: 0.1,
+        refractive_index: 1.59,
+        transparency: 0.9,
+        specular: 1.0,
+        shininess: 300.0,
+        ..Material::default()
+    }))
+    .set_transform(Matrix44::scaling(0.3, 0.3, 0.3).translate(0.0, 0.3, -1.5));
     let leftsphere = Object::Sphere(Sphere::new(&Material {
         color: Color {
             red: 1.0,
@@ -129,8 +151,8 @@ fn draw(frame: &mut [u8]) {
         specular: 0.8,
         pattern: Some(
             Pattern::RadialGradient(RadialGradient::new(
-                Pattern::SolidColor(SolidColor::new(Color::green() + 0.06)),
-                Pattern::SolidColor(SolidColor::new(Color::green() - 0.2)),
+                Pattern::SolidColor(SolidColor::new(Color::green() + 0.56)),
+                Pattern::SolidColor(SolidColor::new(Color::green() + 0.23)),
             ))
             .set_transform(Matrix44::rotation_x(-std::f64::consts::FRAC_PI_4).scale(0.2, 0.2, 0.2)),
         ),
@@ -141,7 +163,7 @@ fn draw(frame: &mut [u8]) {
         specular: 0.0,
         diffuse: 0.5,
         ambient: 0.01,
-        reflective: 0.3,
+        reflective: 0.05,
         color: Color {
             red: 0.0,
             green: 0.9,
@@ -149,13 +171,13 @@ fn draw(frame: &mut [u8]) {
         },
         pattern: Some(Pattern::Blend(Blend::new(
             Pattern::Stripe(Stripe::new(
-                Pattern::SolidColor(SolidColor::new(Color::green())),
-                Pattern::SolidColor(SolidColor::new(Color::green() + 0.08)),
+                Pattern::SolidColor(SolidColor::new(Color::gray())),
+                Pattern::SolidColor(SolidColor::new(Color::gray() + 0.08)),
             ))
             .set_transform(Matrix44::scaling(0.2, 0.2, 0.2).rotate_y(std::f64::consts::FRAC_PI_4)),
             Pattern::Stripe(Stripe::new(
-                Pattern::SolidColor(SolidColor::new(Color::yellow() + 0.4)),
-                Pattern::SolidColor(SolidColor::new(Color::yellow() - 0.2)),
+                Pattern::SolidColor(SolidColor::new(Color::braun() + 0.2)),
+                Pattern::SolidColor(SolidColor::new(Color::braun() + 0.1)),
             )),
             0.7,
         ))),
@@ -175,7 +197,7 @@ fn draw(frame: &mut [u8]) {
     }));
 
     let world = World {
-        objects: vec![plane, middlesphere, rightsphere, leftsphere],
+        objects: vec![plane, middlesphere, rightsphere, leftsphere, rightsphere_2],
         lights: vec![
             Light::PointLight(PointLight {
                 position: Point {
@@ -192,9 +214,9 @@ fn draw(frame: &mut [u8]) {
             //         z: -10.0,
             //     },
             //     color: Color {
-            //         red: 1.0,
-            //         green: 1.0,
-            //         blue: 1.0,
+            //         red: 0.2,
+            //         green: 0.2,
+            //         blue: 0.2,
             //     },
             // }),
         ],

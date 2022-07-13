@@ -30,6 +30,7 @@ pub enum Pattern {
     SolidColor(SolidColor),
     Perturbed(Perturbed),
     Blend(Blend),
+    TestPattern,
 }
 
 impl Pattern {
@@ -44,6 +45,11 @@ impl Pattern {
             Pattern::SolidColor(ref s) => s.pattern_at(&object_point),
             Pattern::Blend(ref s) => s.pattern_at(&object_point),
             Pattern::Perturbed(ref s) => s.pattern_at(&object_point),
+            Pattern::TestPattern => Color {
+                red: point.x as f32,
+                green: point.y as f32,
+                blue: point.z as f32,
+            },
         }
     }
 
@@ -57,6 +63,11 @@ impl Pattern {
             Pattern::SolidColor(ref s) => s.pattern_at(&point),
             Pattern::Blend(ref s) => s.pattern_at(&point),
             Pattern::Perturbed(ref s) => s.pattern_at(&point),
+            Pattern::TestPattern => Color {
+                red: point.x as f32,
+                green: point.y as f32,
+                blue: point.z as f32,
+            },
         }
     }
 
@@ -70,6 +81,7 @@ impl Pattern {
             Pattern::Blend(ref mut s) => s.transform = transform,
             Pattern::Perturbed(ref mut s) => s.transform = transform,
             Pattern::SolidColor(ref mut _s) => {}
+            Pattern::TestPattern => {}
         }
         self
     }
