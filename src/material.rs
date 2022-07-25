@@ -28,3 +28,16 @@ impl Default for Material {
         }
     }
 }
+
+impl PartialEq for Material {
+    fn eq(&self, other: &Self) -> bool {
+        self.color == other.color
+            && self.ambient == other.ambient
+            && self.diffuse == other.diffuse
+            && self.specular == other.specular
+            && self.reflective == other.reflective
+            && self.shininess == other.shininess
+            && self.transparency == other.transparency
+            && self.refractive_index == other.refractive_index
+    }
+}

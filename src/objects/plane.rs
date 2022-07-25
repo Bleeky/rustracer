@@ -27,21 +27,18 @@ impl Plane {
     }
 
     pub fn normal_at(&self, _point: &Point) -> Vector3 {
-        let object_normal = Vector3 {
+        Vector3 {
             x: 0.0,
             y: 1.0,
             z: 0.0,
-        };
-        let world_normal = self.transform.invert().transpose() * object_normal;
-        world_normal.normalize()
+        }
     }
 
     pub fn intersect(&self, ray: &Ray) -> Option<Vec<Intersection>> {
-        let ray2 = ray.transform(self.transform.invert());
-        if ray2.direction.y.abs() < f64::EPSILON {
+        if ray.direction.y.abs() < f64::EPSILON {
             return None;
         }
-        let t = -ray2.origin.y / ray2.direction.y;
+        let t = -ray.origin.y / ray.direction.y;
         Some(vec![Intersection {
             distance: t,
             object: Object::Plane(self.clone()),

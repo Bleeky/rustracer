@@ -42,17 +42,17 @@ impl Sphere {
     }
 
     pub fn normal_at(&self, point: &Point) -> Vector3 {
-        let object_point = self.transform.invert() * *point;
-        let object_normal = object_point - Point::zero();
-        let world_normal = self.transform.invert().transpose() * object_normal;
-        world_normal.normalize()
+        Vector3 {
+            x: point.x,
+            y: point.y,
+            z: point.z,
+        }
     }
 
     pub fn intersect(&self, ray: &Ray) -> Option<Vec<Intersection>> {
-        let ray2 = ray.transform(self.transform.invert());
-        let sphere_to_ray = ray2.origin - Point::zero();
-        let a = ray2.direction.dot(&ray2.direction);
-        let b = 2.0 * ray2.direction.dot(&sphere_to_ray);
+        let sphere_to_ray = ray.origin - Point::zero();
+        let a = ray.direction.dot(&ray.direction);
+        let b = 2.0 * ray.direction.dot(&sphere_to_ray);
         let c = sphere_to_ray.dot(&sphere_to_ray) - 1.0;
         let discriminant = b * b - 4.0 * a * c;
         if discriminant >= 0.0 {

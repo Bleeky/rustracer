@@ -151,8 +151,8 @@ mod tests {
 
     #[test]
     fn test_normal_at_translated() {
-        let mut s = Sphere::new(&Material::default());
-        s.set_transform(Matrix44::translation(0.0, 1.0, 0.0));
+        let s = Object::Sphere(Sphere::new(&Material::default()))
+            .set_transform(Matrix44::translation(0.0, 1.0, 0.0));
         assert_eq!(
             s.normal_at(&Point {
                 x: 0.0,
@@ -169,8 +169,8 @@ mod tests {
 
     #[test]
     fn test_normal_on_transformed() {
-        let mut s = Sphere::new(&Material::default());
-        s.set_transform(Matrix44::rotation_z(std::f64::consts::PI / 5.0).scale(1.0, 0.5, 1.0));
+        let s = Object::Sphere(Sphere::new(&Material::default()))
+            .set_transform(Matrix44::rotation_z(std::f64::consts::PI / 5.0).scale(1.0, 0.5, 1.0));
         assert_eq!(
             s.normal_at(&Point {
                 x: 0.0,

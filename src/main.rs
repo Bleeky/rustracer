@@ -25,6 +25,7 @@ use crate::intersection::*;
 use crate::light::*;
 use crate::material::*;
 use crate::matrix::*;
+use crate::objects::cube::*;
 use crate::objects::plane::*;
 use crate::objects::sphere::*;
 use crate::objects::*;
@@ -195,9 +196,35 @@ fn draw(frame: &mut [u8]) {
         // ))),
         ..Material::default()
     }));
+    let cube = Object::Cube(Cube::new(&Material {
+        color: Color {
+            red: 1.0,
+            green: 0.3,
+            blue: 0.5,
+        },
+        diffuse: 0.7,
+        specular: 0.8,
+        reflective: 0.3,
+        pattern: Some(
+            Pattern::Stripe(Stripe::new(
+                Pattern::SolidColor(SolidColor::new(Color::red())),
+                Pattern::SolidColor(SolidColor::new(Color::red() + 0.28)),
+            ))
+            .set_transform(Matrix44::scaling(0.2, 0.2, 0.2).rotate_y(std::f64::consts::FRAC_PI_4)),
+        ),
+        ..Material::default()
+    }))
+    .set_transform(Matrix44::scaling(0.1, 0.1, 0.1).translate(1.0, 0.1, -2.0));
 
     let world = World {
-        objects: vec![plane, middlesphere, rightsphere, leftsphere, rightsphere_2],
+        objects: vec![
+            cube,
+            plane,
+            middlesphere,
+            rightsphere,
+            leftsphere,
+            rightsphere_2,
+        ],
         lights: vec![
             Light::PointLight(PointLight {
                 position: Point {
@@ -210,13 +237,13 @@ fn draw(frame: &mut [u8]) {
             // Light::PointLight(PointLight {
             //     position: Point {
             //         x: 10.0,
-            //         y: 10.0,
-            //         z: -10.0,
+            //         y: 3.0,
+            //         z: -30.0,
             //     },
             //     color: Color {
-            //         red: 0.2,
-            //         green: 0.2,
-            //         blue: 0.2,
+            //         red: 0.7,
+            //         green: 0.7,
+            //         blue: 0.7,
             //     },
             // }),
         ],
