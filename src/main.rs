@@ -1,6 +1,7 @@
+use image::{DynamicImage, GenericImage};
 use patterns::Pattern;
-// use image::{DynamicImage, GenericImage};
 use pixels::{Error, Pixels, SurfaceTexture};
+use std::env;
 use winit::dpi::LogicalSize;
 use winit::event::{Event, VirtualKeyCode};
 use winit::event_loop::{ControlFlow, EventLoop};
@@ -45,45 +46,11 @@ const WIDTH: u32 = 400;
 const HEIGHT: u32 = 400;
 // const WIDTH: u32 = 1200;
 // const HEIGHT: u32 = 800;
-const MAX_RECURSION: i32 = 5;
 // const WIDTH: u32 = 2560;
 // const HEIGHT: u32 = 1440;
+const MAX_RECURSION: i32 = 5;
 
-fn main() -> Result<(), Error> {
-    let mut input = WinitInputHelper::new();
-    let event_loop = EventLoop::new();
-    let window = {
-        let size = LogicalSize::new(WIDTH as f64, HEIGHT as f64);
-        let scaled_size = LogicalSize::new(WIDTH as f64, HEIGHT as f64);
-        WindowBuilder::new()
-            .with_title("Rustracer")
-            .with_inner_size(scaled_size)
-            .with_min_inner_size(size)
-            .build(&event_loop)
-            .unwrap()
-    };
-    let window_size = window.inner_size();
-    let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
-    let mut pixels = Pixels::new(WIDTH, HEIGHT, surface_texture)?;
-    event_loop.run(move |event, _, control_flow| {
-        if let Event::RedrawRequested(_) = event {
-            draw(pixels.get_frame());
-            if pixels.render().is_err() {
-                *control_flow = ControlFlow::Exit;
-                return;
-            }
-        }
-        if input.update(&event) {
-            if input.key_released(VirtualKeyCode::Escape) || input.quit() {
-                *control_flow = ControlFlow::Exit;
-                return;
-            }
-            // window.request_redraw();
-        }
-    });
-}
-
-fn draw(frame: &mut [u8]) {
+fn get_scene() -> (Camera, World) {
     let middlesphere = Object::Sphere(Sphere::new(&Material {
         color: Color {
             red: 0.1,
@@ -252,6 +219,8 @@ fn draw(frame: &mut [u8]) {
     cam.transform = view_transform(
         Point {
             x: 0.0,
+            // y: 2.5,
+            // z: -10.0,
             y: 1.5,
             z: -5.0,
         },
@@ -266,7 +235,50 @@ fn draw(frame: &mut [u8]) {
             z: 0.0,
         },
     );
+    return (cam, world);
+}
 
+fn main() -> Result<(), Error> {
+    let (cam, world) = get_scene();
+    let args: Vec<String> = env::args().collect();
+    if args.len() > 1 && args[1] == "--export" {
+        draw_image(&cam, &world);
+        return Result::Ok(());
+    }
+    let mut input = WinitInputHelper::new();
+    let event_loop = EventLoop::new();
+    let window = {
+        let size = LogicalSize::new(WIDTH as f64, HEIGHT as f64);
+        let scaled_size = LogicalSize::new(WIDTH as f64, HEIGHT as f64);
+        WindowBuilder::new()
+            .with_title("Rustracer")
+            .with_inner_size(scaled_size)
+            .with_min_inner_size(size)
+            .build(&event_loop)
+            .unwrap()
+    };
+    let window_size = window.inner_size();
+    let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
+    let mut pixels = Pixels::new(WIDTH, HEIGHT, surface_texture)?;
+    event_loop.run(move |event, _, control_flow| {
+        if let Event::RedrawRequested(_) = event {
+            draw_frame(pixels.get_frame(), &cam, &world);
+            if pixels.render().is_err() {
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
+        }
+        if input.update(&event) {
+            if input.key_released(VirtualKeyCode::Escape) || input.quit() {
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
+            // window.request_redraw();
+        }
+    });
+}
+
+fn draw_frame(frame: &mut [u8], cam: &Camera, world: &World) {
     for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
         let x = (i % WIDTH as usize) as u32;
         let y = (i / WIDTH as usize) as u32;
@@ -279,4 +291,25 @@ fn draw(frame: &mut [u8]) {
             0xff,
         ]);
     }
+}
+
+fn draw_image(cam: &Camera, world: &World) {
+    let mut img = DynamicImage::new_rgb8(WIDTH, HEIGHT);
+    for x in 0..WIDTH {
+        for y in 0..HEIGHT {
+            let ray = cam.ray_for_pixel(x, y);
+            let color = color_at(&world, &ray, MAX_RECURSION);
+            img.put_pixel(
+                x,
+                y,
+                image::Rgba([
+                    (color.red * 255.0) as u8,
+                    (color.green * 255.0) as u8,
+                    (color.blue * 255.0) as u8,
+                    255,
+                ]),
+            );
+        }
+    }
+    img.save("render.png").unwrap();
 }
